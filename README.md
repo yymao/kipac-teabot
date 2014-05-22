@@ -1,4 +1,4 @@
-kipac-teabot
+KIPAC TeaBot
 ============
 
-KIPAC TeaBot (alpha)
+KIPAC TeaBot is now being tested. 
