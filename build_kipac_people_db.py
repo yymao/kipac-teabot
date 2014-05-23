@@ -17,9 +17,9 @@ import time
 from urllib import urlopen
 import sqlite3
 
-from database import people_db_path
+from database import people_db_path, collection_weight_path
 from fetch_arxiv import fetch_arxiv
-from topic_model import topic_model
+from topic_model import topic_model, collection_weight
 
 re_name = re.compile(r'/kipac/people/\w+\\\"\\x3e([\w\s-]+)\\x3c')
 
@@ -48,7 +48,7 @@ def get_arxiv_name(name):
     return last + '_' + first
 
 db = sqlite3.connect(people_db_path)
-
+cw = collection_weight()
 for url in kipac_people_url:
     for m in re_name.finditer(urlopen(url).read()):
         name = m.groups()[0]
@@ -61,6 +61,7 @@ for url in kipac_people_url:
             count += 1
             model.add_document(entry['title'] + '.' + entry['summary'])
         if count:
+            cw.add(model)
             db.execute('insert or replace into people (name, arxivname, model, lastupdated) values (?,?,?,?)', \
                     (name, arxivname, sqlite3.Binary(model.dumps()), \
                     time.time()))
@@ -69,3 +70,5 @@ for url in kipac_people_url:
 db.commit()
 db.close()
 
+with open(collection_weight_path, 'w') as f:
+    f.write(cw.dumps())

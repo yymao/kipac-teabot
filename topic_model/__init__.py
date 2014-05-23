@@ -1,4 +1,4 @@
-__all__ = ['topic_model', 'similarity_threshold']
+__all__ = ['topic_model', 'collection_weight', 'similarity_threshold']
 import re
 import math
 from collections import defaultdict
@@ -12,7 +12,7 @@ _re_word = re.compile(r"[a-z][a-z-']*[a-z]",re.I)
 _re_punct = re.compile(r"[,.;:?!]")
 
 
-similarity_threshold = 0.07
+similarity_threshold = 0.02
 
 class topic_model:
     def __init__(self, string=None):
@@ -61,4 +61,30 @@ class topic_model:
 
     def loads(self, string):
         self._tf = pickle.loads(string)
+
+    def apply_weight(self, collection_weight):
+        total = float(collection_weight._total_count)
+        for k in self._tf:
+            self._tf[k] *= math.log(total/(collection_weight._w[k]+1))
+
+class collection_weight:
+    def __init__(self, string=None):
+        if string is None:
+            self._total_count = 0
+            self._w = defaultdict(int)
+        else:
+            self.loads(string)
+
+    def add(self, topic_model):
+        self._total_count += 1
+        for k in topic_model._tf:
+            self._w[k] += 1
+
+    def dumps(self):
+        return pickle.dumps({'total_count':self._total_count, 'w':self._w}, 2)
+
+    def loads(self, string):
+        d = pickle.loads(string)
+        self._total_count = d['total_count']
+        self._w = d['w']
 

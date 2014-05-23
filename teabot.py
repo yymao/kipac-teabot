@@ -17,10 +17,10 @@ import md5
 import sqlite3
 import numpy as np
 
-from database import key, people_db_path
+from database import key, people_db_path, collection_weight_path
 from email_server import email_server
 from fetch_arxiv import fetch_arxiv
-from topic_model import topic_model, similarity_threshold
+from topic_model import topic_model, collection_weight, similarity_threshold
 
 now = time.time()
 sec_per_day = 24*60*60
@@ -49,10 +49,14 @@ db.close()
 if len(people) == 0:
     sys.exit(0)
 
+with open(collection_weight_path, 'r') as f:
+    cw = collection_weight(f.read())
+
 scores = []
 for entry in entries:
     model = topic_model()
     model.add_document(entry['title'] + '.' + entry['summary'])
+    model.apply_weight(cw)
     for person in people:
         scores.append(model.get_similarity(person['model']))
 scores = np.array(scores).reshape(len(entries), len(people))
