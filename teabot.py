@@ -8,7 +8,7 @@ if 'REQUEST_METHOD' in os.environ :
     print
     TESTING = True
 else:
-    TESTING = False or True
+    TESTING = False #or True
 
 import sys
 import time
@@ -63,13 +63,12 @@ from_me = 'Yao-Yuan Mao <yymao@stanford.edu>'
 footer =  u'<br/><p>This message is automatically generated and sent by KIPAC TeaBot.<br/>'
 footer += u'<a href="https://github.com/yymao/kipac-teabot/issues?state=open">Create an issue</a> if you have any suggestions/questions.</p>'
 
-def get_largest_indices(scores, number):
+def get_largest_indices(scores, limit, threshold=similarity_threshold):
     s = scores.argsort()
-    for i in reversed(s):
-        if scores[i] >= similarity_threshold:
-            yield i
-        else:
+    for c, i in enumerate(reversed(s)):
+        if scores[i] < threshold or c >= limit:
             break
+        yield i
 
 n_papers = 10
 n_people = 4
@@ -77,24 +76,30 @@ msg = u'<h2>KIPAC people might find the following new papers on arXiv today inte
 msg += u'<ul>'
 median_scores = np.median(scores, axis=1)
 any_paper = False
-for i in get_largest_indices(median_scores, n_papers):
-    any_paper = True
-    entry = entries[i]
-    msg += u'<li><p>'
-    msg += u'<a href="%s">%s</a> by %s et al.<br/>'%(\
-            entry['id'], entry['title'], entry['first_author'])
-    names = [people[j]['name'] for j in get_largest_indices(scores[i], n_people)]
-    msg += u'Try asking: %s'%(', '.join(names))
-    msg += u'</p></li>'
+for i in get_largest_indices(median_scores, n_papers, 0):
+    names= [people[j]['name'] for j in get_largest_indices(scores[i], n_people)]
+    if len(names):
+        any_paper = True
+        entry = entries[i]
+        msg += u'<li><p>'
+        msg += u'<a href="%s">%s</a> by %s et al.<br/>'%(\
+                entry['id'], entry['title'], entry['first_author'])
+        msg += u'Try asking: %s'%(', '.join(names))
+        msg += u'</p></li>'
 msg += u'</ul>'
 if any_paper:
-    email.send(from_me, from_me if TESTING else 'KIPAC tealeaks <tealeaks@kipac.stanford.edu>', \
-            '[TeaBot] New arXiv papers ' + time.strftime('%m/%d', time.localtime()),\
+    if TESTING:
+        print msg.encode('ascii', 'xmlcharrefreplace') + footer
+        print '<br/><hr/>'
+    else:
+        email.send(from_me, 'KIPAC tealeaks <tealeaks@kipac.stanford.edu>', \
+            '[TeaBot] New arXiv papers ' \
+            + time.strftime('%m/%d', time.localtime()),\
             msg + footer)
 
 n_papers = 3
 for j, person in enumerate(people):
-    if person['tester'] is None or (TESTING and person['tester'] < 2):
+    if person['tester'] is None:
         continue
     msg = u'Hi %s,<br/><br/>'%(person['name'].split()[0])
     msg += u'You may find the following new paper(s) on arXiv today interesting:<br/>'
@@ -109,7 +114,7 @@ for j, person in enumerate(people):
         authkey = md5.md5(arxiv_id + person['email'] + key).hexdigest()
         url = 'http://www.stanford.edu/~yymao/cgi-bin/taste-tea/arxiv.php?id=%s&u=%s&k=%s'%(\
                 arxiv_id, person['email'], authkey)
-        msg += u'<li><p><a href="%s">%s</a> by %s et al.<br/>%s<br/></p></li>'%(\
+        msg += u'<li><p><a href="%s">%s</a> by %s et al.<br/><br/>%s<br/><br/></p></li>'%(\
                 url, entry['title'], entry['first_author'], entry['summary'])
     if not any_paper:
         continue
@@ -118,9 +123,14 @@ for j, person in enumerate(people):
     authkey = md5.md5(date + person['email'] + key).hexdigest()
     url = 'http://www.stanford.edu/~yymao/cgi-bin/taste-tea/notgood.php?date=%s&u=%s&k=%s'%(\
             date, person['email'], authkey)
-    msg += u'<br/><p>If these are bad suggestions, let TeaBot know by <a href="%s">clicking here</a>. Thanks!</p>'%(url)
-    email.send(from_me, '%s <%s>'%(person['name'], person['email']), \
-            '[TeaBot] Best match on arXiv today: '+best_title, msg + footer)
+    msg += u'<p>If these are bad suggestions, let TeaBot know by <a href="%s">clicking here</a>. Thanks!</p>'%(url)
+    if TESTING:
+        print '<h2>', person['name'], '</h2>'
+        print msg.encode('ascii', 'xmlcharrefreplace') + footer
+        print '<br/><hr/>'
+    else:
+        email.send(from_me, '%s <%s>'%(person['name'], person['email']), \
+                '[TeaBot] Best match on arXiv today: '+best_title, msg + footer)
 
 email.close()
 
