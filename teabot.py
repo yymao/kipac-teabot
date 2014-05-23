@@ -112,7 +112,7 @@ for j, person in enumerate(people):
             any_paper = True
         arxiv_id = re.search(r'\d{4}\.\d{4}', entry['id']).group()
         authkey = md5.md5(arxiv_id + person['email'] + key).hexdigest()
-        url = 'http://www.stanford.edu/~yymao/cgi-bin/taste-tea/arxiv.php?id=%s&u=%s&k=%s'%(\
+        url = 'http://www.stanford.edu/~yymao/cgi-bin/taste-tea/arxiv.php?id=%s&u=%s&k=%s&pdf=1'%(\
                 arxiv_id, person['email'], authkey)
         msg += u'<li><p><a href="%s">%s</a> by %s et al.<br/><br/>%s<br/><br/></p></li>'%(\
                 url, entry['title'], entry['first_author'], entry['summary'])
