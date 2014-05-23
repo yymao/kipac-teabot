@@ -65,7 +65,7 @@ footer += u'<a href="https://github.com/yymao/kipac-teabot/issues?state=open">Cr
 
 def get_largest_indices(scores, number):
     s = scores.argsort()
-    for i in reverse(s):
+    for i in reversed(s):
         if scores[i] >= similarity_threshold:
             yield i
         else:
@@ -88,7 +88,7 @@ for i in get_largest_indices(median_scores, n_papers):
     msg += u'</p></li>'
 msg += u'</ul>'
 if any_paper:
-    email.send(from_me, 'KIPAC tealeaks <tealeaks@kipac.stanford.edu>', \
+    email.send(from_me, from_me if TESTING else 'KIPAC tealeaks <tealeaks@kipac.stanford.edu>', \
             '[TeaBot] New arXiv papers ' + time.strftime('%m/%d', time.localtime()),\
             msg + footer)
 
