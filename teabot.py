@@ -129,6 +129,7 @@ for j, person in enumerate(people):
     if not any_paper:
         continue
     msg += u'</ul>'
+    db.commit()
     if TESTING:
         print '<h2>', person['name'], '</h2>'
         print msg.encode('ascii', 'xmlcharrefreplace') + footer
@@ -137,5 +138,6 @@ for j, person in enumerate(people):
         email.send(from_me, '%s <%s>'%(person['name'], person['email']), \
                 '[TeaBot] Best match on arXiv today: '+best_title, msg + footer)
 
+db.close()
 email.close()
 
