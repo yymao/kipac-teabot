@@ -25,7 +25,7 @@ from topic_model import topic_model, collection_weight, similarity_threshold
 now = time.time()
 sec_per_day = 24*60*60
 to_time = time.gmtime(now-sec_per_day)
-from_time = time.gmtime(now-sec_per_day*(2 if to_time.tm_wday else 4))
+from_time = time.gmtime(now-sec_per_day*(2 if time.gmtime(now).tm_wday else 4))
 from_time = time.strftime('%Y%m%d2000', from_time)
 to_time = time.strftime('%Y%m%d2000', to_time)
 
@@ -118,7 +118,7 @@ for j, person in enumerate(people):
         arxiv_id = re.search(r'\d{4}\.\d{4}', entry['id']).group()
         key = md5.md5(arxiv_id + person['name'] + keypass).hexdigest()
         db.execute('insert or replace into response (key, arxiv_id, person) values (?,?,?)',\
-                key, person['name'], arxiv_id)
+                (key, person['name'], arxiv_id))
         url = 'http://www.stanford.edu/~yymao/cgi-bin/taste-tea/arxiv.php?id=%s&key=%s'%(\
                 arxiv_id, key)
         dislike_key = md5.md5(key + 'dislike' + keypass).hexdigest()
