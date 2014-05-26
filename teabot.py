@@ -17,7 +17,7 @@ import md5
 import sqlite3
 import numpy as np
 
-from database import key, people_db_path, collection_weight_path
+from database import keypass, people_db_path, collection_weight_path, response_db_path
 from email_server import email_server
 from fetch_arxiv import fetch_arxiv
 from topic_model import topic_model, collection_weight, similarity_threshold
@@ -101,6 +101,7 @@ if any_paper:
             + time.strftime('%m/%d', time.localtime()),\
             msg + footer)
 
+db = sqlite3.connect(response_db_path)
 n_papers = 3
 for j, person in enumerate(people):
     if person['tester'] is None:
@@ -115,19 +116,19 @@ for j, person in enumerate(people):
             best_title = entry['title']
             any_paper = True
         arxiv_id = re.search(r'\d{4}\.\d{4}', entry['id']).group()
-        authkey = md5.md5(arxiv_id + person['email'] + key).hexdigest()
-        url = 'http://www.stanford.edu/~yymao/cgi-bin/taste-tea/arxiv.php?id=%s&u=%s&k=%s&pdf=1'%(\
-                arxiv_id, person['email'], authkey)
-        msg += u'<li><p><a href="%s">%s</a> by %s et al.<br/><br/>%s<br/><br/></p></li>'%(\
-                url, entry['title'], entry['first_author'], entry['summary'])
+        key = md5.md5(arxiv_id + person['name'] + keypass).hexdigest()
+        db.execute('insert or replace into response (key, arxiv_id, person) values (?,?,?)',\
+                key, person['name'], arxiv_id)
+        url = 'http://www.stanford.edu/~yymao/cgi-bin/taste-tea/arxiv.php?id=%s&key=%s'%(\
+                arxiv_id, key)
+        dislike_key = md5.md5(key + 'dislike' + keypass).hexdigest()
+        url_dislike = 'http://www.stanford.edu/~yymao/cgi-bin/taste-tea/arxiv.php?id=%s&key=%s&res=dislike&reskey=%s'%(\
+                arxiv_id, key, dislike_key)
+        msg += u'<li><p><a href="%s">%s</a> by %s et al.<br/><br/>%s<br/><br/><a href="%s">Read more</a> | <a href="%s">Not interesting</a><br/><br/></p></li>'%(\
+                url, entry['title'], entry['first_author'], entry['summary'], url, url_dislike)
     if not any_paper:
         continue
     msg += u'</ul>'
-    date = time.strftime('%m%d%Y', time.localtime())
-    authkey = md5.md5(date + person['email'] + key).hexdigest()
-    url = 'http://www.stanford.edu/~yymao/cgi-bin/taste-tea/notgood.php?date=%s&u=%s&k=%s'%(\
-            date, person['email'], authkey)
-    msg += u'<p>If these are bad suggestions, let TeaBot know by <a href="%s">clicking here</a>. Thanks!</p>'%(url)
     if TESTING:
         print '<h2>', person['name'], '</h2>'
         print msg.encode('ascii', 'xmlcharrefreplace') + footer
