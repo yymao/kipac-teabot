@@ -118,11 +118,11 @@ for j, person in enumerate(people):
         arxiv_id = re.search(r'\d{4}\.\d{4}', entry['id']).group()
         key = md5.md5(arxiv_id + person['name'] + keypass).hexdigest()
         db.execute('insert or replace into response (key, arxiv_id, person) values (?,?,?)',\
-                (key, person['name'], arxiv_id))
+                (key, arxiv_id, person['name']))
         url = 'http://www.stanford.edu/~yymao/cgi-bin/taste-tea/arxiv.php?id=%s&key=%s'%(\
                 arxiv_id, key)
         dislike_key = md5.md5(key + 'dislike' + keypass).hexdigest()
-        url_dislike = 'http://www.stanford.edu/~yymao/cgi-bin/taste-tea/arxiv.php?id=%s&key=%s&res=dislike&reskey=%s'%(\
+        url_dislike = 'http://www.stanford.edu/~yymao/cgi-bin/taste-tea/get-res.php?id=%s&key=%s&res=dislike&reskey=%s'%(\
                 arxiv_id, key, dislike_key)
         msg += u'<li><p><a href="%s">%s</a> by %s et al.<br/><br/>%s<br/><br/><a href="%s">Read more</a> | <a href="%s">Not interesting</a><br/><br/></p></li>'%(\
                 url, entry['title'], entry['first_author'], entry['summary'], url, url_dislike)
