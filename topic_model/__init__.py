@@ -35,7 +35,7 @@ class topic_model:
                     if len(history) >= 2:
                         bgf[' '.join(history[-2:])] += 1
                         if len(history) >= 3:
-                            tgf[' '.join(history[-2:])] += 1
+                            tgf[' '.join(history[-3:])] += 1
                             del history[0]
         for ngf in (ugf, bgf, tgf):
             try:

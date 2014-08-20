@@ -63,7 +63,7 @@ scores = np.array(scores).reshape(len(entries), len(people))
 model = None
 
 email = email_server()
-from_me = 'Yao-Yuan Mao <yymao@stanford.edu>'
+from_me = 'KIPAC Tea Bot <teabot@kipac.stanford.edu>'
 footer =  u'<br/><p>This message is automatically generated and sent by KIPAC TeaBot.<br/>'
 footer += u'<a href="https://github.com/yymao/kipac-teabot/issues?state=open">Create an issue</a> if you have any suggestions/questions.</p>'
 
