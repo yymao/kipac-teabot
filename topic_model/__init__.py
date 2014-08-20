@@ -21,7 +21,7 @@ class topic_model:
         else:
             self.loads(string)
 
-    def add_document(self, text):
+    def add_document(self, text, weight=1.0):
         ugf = defaultdict(int) #unigram frequency
         bgf = defaultdict(int) #bigram frequency
         tgf = defaultdict(int) #trigram frequency
@@ -43,7 +43,7 @@ class topic_model:
             except ValueError:
                 pass
             else:
-                normalization = float(normalization)
+                normalization = float(normalization)/weight
                 for k, v in ngf.iteritems():
                     self._tf[k] += v/normalization
 
