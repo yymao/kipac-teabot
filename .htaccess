@@ -1,0 +1,6 @@
+AuthType WebAuth
+Require user yymao
+<Files "taste-tea.py">
+Allow from all
+Satisfy Any
+</Files>

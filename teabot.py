@@ -6,22 +6,28 @@ if 'REQUEST_METHOD' in os.environ :
     cgitb.enable()
     print 'Content-Type: text/html'
     print
-    TESTING = True
+    class email_server:
+        def __init__(self):
+            pass
+        def close(self):
+            pass
+        def send(self, From, To, subject, message):
+            print '<h2>', To, '</h2>'
+            print message.encode('ascii', 'xmlcharrefreplace')
+            print '<br/><hr/>'
 else:
-    TESTING = False #or True
+    from email_server import email_server
 
 import sys
 import time
-import re
 import md5
-import sqlite3
 import numpy as np
 
-from database import keypass, people_db_path, collection_weight_path, response_db_path
-from email_server import email_server
+from database import keypass, kipac_members_reduced_csv, model_dir
 from fetch_arxiv import fetch_arxiv
 from topic_model import topic_model, collection_weight, similarity_threshold
 
+#get new arxiv entries
 now = time.time()
 sec_per_day = 24*60*60
 to_time = time.gmtime(now-sec_per_day)
@@ -37,20 +43,24 @@ arxiv = None
 if len(entries) == 0:
     sys.exit(0)
 
+#load kipac members
 people = []
-db = sqlite3.connect(people_db_path)
-cur = db.cursor()
-cur.execute('select name, model, email, tester from people')
-row = cur.fetchone()
-while row is not None:
-    people.append({'name':row[0], 'model':topic_model(str(row[1])), 'email':row[2], 'tester':row[3]})
-    row = cur.fetchone()
-db.close()
+with open(kipac_members_reduced_csv, 'r') as f:
+    for line in f:
+        items = line.split(',')
+        d = dict(zip(['name','nickname','arxivname','email'], items[:4]))
+        with open('%s/%s.model'%(model_dir, d['arxivname']), 'rb') as fp:
+            d['model'] = topic_model(fp.read())
+        if d['name'] in tester_list:
+            d['email'] = tester_list[d['name']]
+            d['tester'] = True
+        people.append(d)
 if len(people) == 0:
     sys.exit(0)
 
-with open(collection_weight_path, 'r') as f:
-    cw = collection_weight(f.read())
+#apply collection weight to arxiv entries
+with open(collection_weight_path, 'rb') as fp:
+    cw = collection_weight(fp.read())
 
 scores = []
 for entry in entries:
@@ -60,13 +70,10 @@ for entry in entries:
     for person in people:
         scores.append(model.get_similarity(person['model']))
 scores = np.array(scores).reshape(len(entries), len(people))
-model = None
+del model
+del cw
 
-email = email_server()
-from_me = 'KIPAC Tea Bot <teabot@kipac.stanford.edu>'
-footer =  u'<br/><p>This message is automatically generated and sent by KIPAC TeaBot.<br/>'
-footer += u'<a href="https://github.com/yymao/kipac-teabot/issues?state=open">Create an issue</a> if you have any suggestions/questions.</p>'
-
+#helper function
 def get_largest_indices(scores, limit, threshold=similarity_threshold):
     s = scores.argsort()
     for c, i in enumerate(reversed(s)):
@@ -74,6 +81,13 @@ def get_largest_indices(scores, limit, threshold=similarity_threshold):
             break
         yield i
 
+#start an email server
+email = email_server()
+from_me = 'KIPAC Tea Bot <teabot@kipac.stanford.edu>'
+footer =  u'<br/><p>This message is automatically generated and sent by KIPAC TeaBot.<br/>'
+footer += u'<a href="https://github.com/yymao/kipac-teabot/issues?state=open">Create an issue</a> if you have any suggestions/questions.</p>'
+
+#find papers that members are interested
 n_papers = 10
 n_people = 4
 msg = u'<h2>KIPAC people might find the following new papers on arXiv today interesting:</h2>'
@@ -92,16 +106,11 @@ for i in get_largest_indices(median_scores, n_papers, 0):
         msg += u'</p></li>'
 msg += u'</ul>'
 if any_paper:
-    if TESTING:
-        print msg.encode('ascii', 'xmlcharrefreplace') + footer
-        print '<br/><hr/>'
-    else:
-        email.send(from_me, 'KIPAC tealeaks <tealeaks@kipac.stanford.edu>', \
-            '[TeaBot] New arXiv papers ' \
-            + time.strftime('%m/%d', time.localtime()),\
+    email.send(from_me, 'KIPAC tealeaks <tealeaks@kipac.stanford.edu>', 
+            '[TeaBot] New arXiv papers ' + time.strftime('%m/%d', time.localtime()),
             msg + footer)
 
-db = sqlite3.connect(response_db_path)
+#find interesting papers for individual members
 n_papers = 3
 for j, person in enumerate(people):
     if person['tester'] is None:
@@ -115,29 +124,19 @@ for j, person in enumerate(people):
         if not any_paper:
             best_title = entry['title']
             any_paper = True
-        arxiv_id = re.search(r'\d{4}\.\d{4}', entry['id']).group()
-        key = md5.md5(arxiv_id + person['name'] + keypass).hexdigest()
-        db.execute('insert or replace into response (key, arxiv_id, person) values (?,?,?)',\
-                (key, arxiv_id, person['name']))
-        url = 'http://www.stanford.edu/~yymao/cgi-bin/taste-tea/arxiv.php?id=%s&key=%s'%(\
-                arxiv_id, key)
-        dislike_key = md5.md5(key + 'dislike' + keypass).hexdigest()
-        url_dislike = 'http://www.stanford.edu/~yymao/cgi-bin/taste-tea/get-res.php?id=%s&key=%s&res=dislike&reskey=%s'%(\
-                arxiv_id, key, dislike_key)
-        msg += u'<li><p><a href="%s">%s</a> by %s et al.<br/><br/>%s<br/><br/><a href="%s">Read more</a> | <a href="%s">Not interesting</a><br/><br/></p></li>'%(\
-                url, entry['title'], entry['first_author'], entry['summary'], url, url_dislike)
+        arxiv_id = entry['key']
+        key = md5.md5(arxiv_id + person['arxivname'] + keypass).hexdigest()
+        url = 'http://www.stanford.edu/~yymao/cgi-bin/taste-tea/arxiv.php?id=%s&name=%skey=%s'%(\
+                arxiv_id, person['arxivname'], key)
+        msg += u'<li><p><a href="%s">%s</a> by %s et al.<br/><br/>%s<br/><br/><a href="%s">Read more</a><br/><br/></p></li>'%(\
+                url, entry['title'], entry['first_author'], entry['summary'], url)
     if not any_paper:
         continue
     msg += u'</ul>'
-    db.commit()
-    if TESTING:
-        print '<h2>', person['name'], '</h2>'
-        print msg.encode('ascii', 'xmlcharrefreplace') + footer
-        print '<br/><hr/>'
-    else:
-        email.send(from_me, '%s <%s>'%(person['name'], person['email']), \
-                '[TeaBot] Best match on arXiv today: '+best_title, msg + footer)
+    email.send(from_me, '%s <%s>'%(person['name'], person['email']),
+            '[TeaBot] Best match on arXiv today: ' + best_title, 
+            msg + footer)
 
-db.close()
+#close the email server
 email.close()
 

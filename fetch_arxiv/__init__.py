@@ -1,9 +1,11 @@
 __all__ = ['fetch_arxiv']
+import re
 from urllib import urlopen
 import xml.etree.ElementTree as ET
 
 _url_base = 'http://export.arxiv.org/api/query?'
 _prefix = '{http://www.w3.org/2005/Atom}'
+_arxiv_re = re.compile(r'\d{4}\.\d{4}|[a-z-]+(?:\.[A-Za-z-]+)?\/\d{7}')
 
 class arxiv_entry:
     def __init__(self, entry):
@@ -15,6 +17,8 @@ class arxiv_entry:
                     for author in self.entry.iterfind(_prefix+'author')]
         elif key == 'first_author':
             return self.entry.find(_prefix+'author').findtext(_prefix+'name')
+        elif key == 'key':
+            return _arxiv_re.search(self.entry.findtext(_prefix+'id')).group()
         else:
             return self.entry.findtext(_prefix+key)
 
@@ -25,6 +29,7 @@ class fetch_arxiv:
         max_results=50
         sortBy=submittedDate
         sortOrder=descending
+        id_list=[comma-delimited ids]
         """
         url = _url_base + '&'.join([k+'='+str(v) \
                 for k, v in keywords.iteritems()])
