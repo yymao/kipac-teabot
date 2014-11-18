@@ -8,7 +8,7 @@ print
 score = 0.25
 
 form = cgi.FieldStorage()
-arxiv_id = form.getvalue('id')
+arxiv_id = str(form.getvalue('id'))
 name = form.getvalue('name')
 key = form.getvalue('key')
 

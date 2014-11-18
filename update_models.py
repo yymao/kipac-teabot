@@ -14,7 +14,7 @@ with open(kipac_members_reduced_csv, 'r') as f:
         model = topic_model()
         for entry in arxiv.iterentries():
             model.add_document(entry['title'] + '.' + entry['summary'], \
-                    weight=float(d[entry['key']]))
+                    weight=float(d[str(entry['key'])]))
         d.close()
         with open('%s/%s.model'%(model_dir, arxivname), 'wb') as fo:
             fo.write(model.dumps())

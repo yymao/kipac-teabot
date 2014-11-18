@@ -12,7 +12,7 @@ if 'REQUEST_METHOD' in os.environ :
         def close(self):
             pass
         def send(self, From, To, subject, message):
-            print '<h2>', To, '</h2>'
+            print '<h2>', cgi.escape(To), '</h2>'
             print message.encode('ascii', 'xmlcharrefreplace')
             print '<br/><hr/>'
 else:
@@ -23,7 +23,7 @@ import time
 import md5
 import numpy as np
 
-from database import keypass, kipac_members_reduced_csv, model_dir
+from database import keypass, kipac_members_reduced_csv, model_dir, tester_list, collection_weight_path
 from fetch_arxiv import fetch_arxiv
 from topic_model import topic_model, collection_weight, similarity_threshold
 
@@ -39,7 +39,7 @@ arxiv = fetch_arxiv(max_results=200, \
         search_query='cat:astro-ph*+AND+submittedDate:[%s+TO+%s]'%(\
         from_time, to_time))
 entries = arxiv.getentries()
-arxiv = None
+del arxiv
 if len(entries) == 0:
     sys.exit(0)
 
@@ -84,7 +84,7 @@ def get_largest_indices(scores, limit, threshold=similarity_threshold):
 #start an email server
 email = email_server()
 from_me = 'KIPAC Tea Bot <teabot@kipac.stanford.edu>'
-footer =  u'<br/><p>This message is automatically generated and sent by KIPAC TeaBot.<br/>'
+footer =  u'<p>This message is automatically generated and sent by KIPAC TeaBot.<br/>'
 footer += u'<a href="https://github.com/yymao/kipac-teabot/issues?state=open">Create an issue</a> if you have any suggestions/questions.</p>'
 
 #find papers that members are interested
@@ -113,10 +113,10 @@ if any_paper:
 #find interesting papers for individual members
 n_papers = 3
 for j, person in enumerate(people):
-    if person['tester'] is None:
+    if 'tester' not in person:
         continue
-    msg = u'Hi %s,<br/><br/>'%(person['name'].split()[0])
-    msg += u'You may find the following new paper(s) on arXiv today interesting:<br/>'
+    msg = u'Hi %s,<br/><br/>'%(person['nickname'])
+    msg += u'TeaBot thinks you\'ll find the following paper(s) on arXiv today interesting:<br/>'
     msg += u'<ul>'
     any_paper = False
     for i in get_largest_indices(scores[:, j], n_papers):
@@ -126,9 +126,9 @@ for j, person in enumerate(people):
             any_paper = True
         arxiv_id = entry['key']
         key = md5.md5(arxiv_id + person['arxivname'] + keypass).hexdigest()
-        url = 'http://www.stanford.edu/~yymao/cgi-bin/taste-tea/arxiv.php?id=%s&name=%skey=%s'%(\
+        url = 'http://www.stanford.edu/~yymao/cgi-bin/kipac-teabot/taste-tea.py?id=%s&name=%s&key=%s'%(\
                 arxiv_id, person['arxivname'], key)
-        msg += u'<li><p><a href="%s">%s</a> by %s et al.<br/><br/>%s<br/><br/><a href="%s">Read more</a><br/><br/></p></li>'%(\
+        msg += u'<li><b><a href="%s">%s</a></b> by %s et al.<br/><br/>%s [<a href="%s">Read more</a>]<br/><br/><br/></li>'%(\
                 url, entry['title'], entry['first_author'], entry['summary'], url)
     if not any_paper:
         continue
