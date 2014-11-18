@@ -16,6 +16,7 @@ if name and key:
     sys.path.append('../kipac-teabot')
     from database import keypass, model_dir
     if md5.md5(arxiv_id + name + keypass).hexdigest() == key:
+        import anydbm
         d = anydbm.open('%s/%s'%(model_dir, name), 'w')
         if arxiv_id not in d or float(d[arxiv_id]) < score:
             d[arxiv_id] = score
