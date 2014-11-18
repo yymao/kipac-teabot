@@ -126,7 +126,7 @@ for j, person in enumerate(people):
             any_paper = True
         arxiv_id = entry['key']
         key = md5.md5(arxiv_id + person['arxivname'] + keypass).hexdigest()
-        url = 'http://www.stanford.edu/~yymao/cgi-bin/kipac-teabot/taste-tea.py?id=%s&name=%s&key=%s'%(\
+        url = 'http://stanford.edu/~yymao/cgi-bin/kipac-teabot/taste-tea.py?id=%s&name=%s&key=%s'%(\
                 arxiv_id, person['arxivname'], key)
         msg += u'<li><b><a href="%s">%s</a></b> by %s et al.<br/><br/>%s [<a href="%s">Read more</a>]<br/><br/><br/></li>'%(\
                 url, entry['title'], entry['first_author'], entry['summary'], url)
