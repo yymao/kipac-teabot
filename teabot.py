@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os
-if 'REQUEST_METHOD' in os.environ :
+if 'REQUEST_METHOD' in os.environ:
     import cgi, cgitb
     cgitb.enable()
     print 'Content-Type: text/html'
@@ -21,13 +21,11 @@ else:
 import sys
 import time
 import md5
-import json
-import anydbm
 import numpy as np
 
-from database import keypass, kipac_members_db, model_dir, collection_weight_path
 from fetch_arxiv import fetch_arxiv
 from topic_model import topic_model, collection_weight, similarity_threshold
+from database import keypass, kipac_members_db, model_dir, collection_weight_path
 
 #get new arxiv entries
 now = time.time()
@@ -47,13 +45,13 @@ if len(entries) == 0:
 
 #load kipac members
 people = []
-member_db = anydbm.open(kipac_members_db, 'r')
-for arxivname, js in member_db.iteritems():
-    d = json.loads(js)
-    with open('%s/%s.model'%(model_dir, arxivname), 'rb') as f:
-        d['model'] = topic_model(f.read())
-    people.append(d)
-member_db.close()
+with open(kipac_members_db, 'r') as f:
+    header = f.next().strip().split(',')
+    for line in f:
+        row = dict(zip(header, line.strip().split(',')))
+        with open('%s/%s.model'%(model_dir, row['arxivname']), 'rb') as fm:
+            row['model'] = topic_model(fm.read())
+        people.append(row)
 if len(people) == 0:
     sys.exit(0)
 
@@ -73,8 +71,16 @@ scores = np.array(scores).reshape(len(entries), len(people))
 #clean up
 del model
 del cw
-for person in people:
+active_idx = []
+tester_idx = []
+for i, person in enumerate(people):
+    if int(person['active'] or 0):
+        active_idx.append(i)
+    if int(person['tester'] or 0):
+        tester_idx.append(i)
     del person['model']
+    del person['active']
+    del person['tester']
 
 #helper function
 def get_largest_indices(scores, limit, threshold=similarity_threshold):
@@ -91,33 +97,34 @@ footer =  u'<p>This message is automatically generated and sent by KIPAC TeaBot.
 footer += u'<a href="https://github.com/yymao/kipac-teabot/issues?state=open">Create an issue</a> if you have any suggestions/questions.</p>'
 
 #find papers that members are interested
-n_papers = 10
+n_papers = 8
 n_people = 4
 msg = u'<h2>KIPAC people might find the following new papers on arXiv today interesting:</h2>'
 msg += u'<ul>'
-median_scores = np.median(scores, axis=1)
+median_scores = np.median(scores[:,active_idx], axis=1)
 any_paper = False
 for i in get_largest_indices(median_scores, n_papers, 0):
-    names= [people[j]['name'] for j in get_largest_indices(scores[i], n_people)]
-    if len(names):
+    names = [people[active_idx[j]]['name'] \
+            for j in get_largest_indices(scores[i,active_idx], n_people)]
+    if names:
         any_paper = True
         entry = entries[i]
         msg += u'<li><p>'
-        msg += u'<a href="%s">%s</a> by %s et al.<br/>'%(\
-                entry['id'], entry['title'], entry['first_author'])
+        msg += u'[%s] <a href="%s">%s</a> by %s et al.<br/>'%(\
+                entry['key'],entry['id'],entry['title'],entry['first_author'])
         msg += u'Try asking: %s'%(', '.join(names))
         msg += u'</p></li>'
-msg += u'</ul>'
+msg += u'</ul><br/>'
 if any_paper:
-    email.send(from_me, 'KIPAC tealeaks <tealeaks@kipac.stanford.edu>', 
-            '[TeaBot] New arXiv papers ' + time.strftime('%m/%d', time.localtime()),
+    email.send(from_me, 'KIPAC tealeaks <tealeaks@kipac.stanford.edu>', \
+            '[TeaBot] New arXiv papers ' \
+            + time.strftime('%m/%d',time.localtime()), \
             msg + footer)
 
 #find interesting papers for individual members
 n_papers = 3
-for j, person in enumerate(people):
-    if person['tester'] != '1':
-        continue
+for j in tester_idx:
+    person = people[j]
     msg = u'Hi %s,<br/><br/>'%(person['nickname'])
     msg += u'TeaBot thinks you\'ll find the following paper(s) on arXiv today interesting:<br/>'
     msg += u'<ul>'
@@ -129,10 +136,8 @@ for j, person in enumerate(people):
             any_paper = True
         arxiv_id = entry['key']
         key = md5.md5(arxiv_id + person['arxivname'] + keypass).hexdigest()
-        url = 'http://stanford.edu/~yymao/cgi-bin/kipac-teabot/taste-tea.py?id=%s&name=%s&key=%s'%(\
-                arxiv_id, person['arxivname'], key)
-        msg += u'<li><b><a href="%s">%s</a></b> by %s et al.<br/><br/>%s [<a href="%s">Read more</a>]<br/><br/><br/></li>'%(\
-                url, entry['title'], entry['first_author'], entry['summary'], url)
+        url = 'http://stanford.edu/~yymao/cgi-bin/kipac-teabot/taste-tea.py?id=%s&name=%s&key=%s'%(arxiv_id, person['arxivname'], key)
+        msg += u'<li><b><a href="%s">%s</a></b> by %s et al.<br/><br/>%s [<a href="%s">Read more</a>]<br/><br/><br/></li>'%(url, entry['title'], entry['first_author'], entry['summary'], url)
     if not any_paper:
         continue
     msg += u'</ul>'
