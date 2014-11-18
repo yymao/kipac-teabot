@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import anydbm
 from database import kipac_members_reduced_csv, model_dir, collection_weight_path
 from fetch_arxiv import fetch_arxiv

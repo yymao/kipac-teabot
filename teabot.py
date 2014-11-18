@@ -21,9 +21,10 @@ else:
 import sys
 import time
 import md5
+import json
 import numpy as np
 
-from database import keypass, kipac_members_reduced_csv, model_dir, tester_list, collection_weight_path
+from database import keypass, kipac_members_db, model_dir, collection_weight_path
 from fetch_arxiv import fetch_arxiv
 from topic_model import topic_model, collection_weight, similarity_threshold
 
@@ -45,22 +46,19 @@ if len(entries) == 0:
 
 #load kipac members
 people = []
-with open(kipac_members_reduced_csv, 'r') as f:
-    for line in f:
-        items = line.split(',')
-        d = dict(zip(['name','nickname','arxivname','email'], items[:4]))
-        with open('%s/%s.model'%(model_dir, d['arxivname']), 'rb') as fp:
-            d['model'] = topic_model(fp.read())
-        if d['name'] in tester_list:
-            d['email'] = tester_list[d['name']]
-            d['tester'] = True
-        people.append(d)
+member_db = anydbm.open(kipac_members_db, 'r')
+for arxivname, js in member_db.iteritems():
+    d = json.loads(js)
+    with open('%s/%s.model'%(model_dir, arxivname), 'rb') as f:
+        d['model'] = topic_model(f.read())
+    people.append(d)
+member_db.close()
 if len(people) == 0:
     sys.exit(0)
 
 #apply collection weight to arxiv entries
-with open(collection_weight_path, 'rb') as fp:
-    cw = collection_weight(fp.read())
+with open(collection_weight_path, 'rb') as f:
+    cw = collection_weight(f.read())
 
 scores = []
 for entry in entries:
@@ -70,8 +68,12 @@ for entry in entries:
     for person in people:
         scores.append(model.get_similarity(person['model']))
 scores = np.array(scores).reshape(len(entries), len(people))
+
+#clean up
 del model
 del cw
+for person in people:
+    del person['model']
 
 #helper function
 def get_largest_indices(scores, limit, threshold=similarity_threshold):
@@ -113,7 +115,7 @@ if any_paper:
 #find interesting papers for individual members
 n_papers = 3
 for j, person in enumerate(people):
-    if 'tester' not in person:
+    if not person['tester']:
         continue
     msg = u'Hi %s,<br/><br/>'%(person['nickname'])
     msg += u'TeaBot thinks you\'ll find the following paper(s) on arXiv today interesting:<br/>'

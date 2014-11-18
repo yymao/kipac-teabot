@@ -1,10 +1,5 @@
 #!/usr/bin/env python
-
-import cgi, cgitb
-cgitb.enable()
-print 'Content-Type: text/html'
-print
-
+import cgi
 score = 0.25
 
 form = cgi.FieldStorage()
@@ -23,5 +18,7 @@ if name and key:
         d.close()
 
 url = ('http://arxiv.org/pdf/%s.pdf'%(arxiv_id)) if arxiv_id else 'http://arxiv.org'
-print '<html><head><script>location.href="%s"</script><meta http-equiv="Refresh" content="0; URL=%s"></head></html>'%(url, url)
+
+print 'Location:', url
+print
 
