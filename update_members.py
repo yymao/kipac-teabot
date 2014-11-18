@@ -7,11 +7,11 @@ from whichdb import whichdb
 from database import kipac_members_url, kipac_members_db, model_dir
 from fetch_arxiv import fetch_arxiv
 
-member_db = anydbm.open(kipac_members_db, 'c')
+member_db = anydbm.open(kipac_members_db, 'n')
 f = urlopen(kipac_members_url)
-header = f.next().split(',')
+header = f.next().strip().split(',')
 for line in f:
-    row = dict(zip(header, line.split(',')))
+    row = dict(zip(header, line.strip().split(',')))
     if not int(row['active']):
         continue
     arxivname = row['arxivname']
@@ -22,7 +22,9 @@ for line in f:
         print "<new database>",
     d = anydbm.open('%s/%s'%(model_dir, arxivname), 'c')
     for entry in arxiv.iterentries():
-        d[entry['key']] = '1'
+        k = entry['key']
+        if k not in d or float(d[k]) < 1:
+            d[k] = '1'
     d.sync()
     for k in d:
         break

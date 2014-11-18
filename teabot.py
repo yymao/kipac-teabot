@@ -22,6 +22,7 @@ import sys
 import time
 import md5
 import json
+import anydbm
 import numpy as np
 
 from database import keypass, kipac_members_db, model_dir, collection_weight_path
@@ -115,7 +116,7 @@ if any_paper:
 #find interesting papers for individual members
 n_papers = 3
 for j, person in enumerate(people):
-    if not person['tester']:
+    if person['tester'] != '1':
         continue
     msg = u'Hi %s,<br/><br/>'%(person['nickname'])
     msg += u'TeaBot thinks you\'ll find the following paper(s) on arXiv today interesting:<br/>'

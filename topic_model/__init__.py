@@ -12,7 +12,7 @@ _re_word = re.compile(r"[a-z][a-z-']*[a-z]",re.I)
 _re_punct = re.compile(r"[,.;:?!]")
 
 
-similarity_threshold = 0.019
+similarity_threshold = 0.018
 
 class topic_model:
     def __init__(self, string=None):
