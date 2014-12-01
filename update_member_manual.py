@@ -12,6 +12,7 @@ import anydbm
 
 d = anydbm.open('%s/%s'%(model_dir, args.arxiv_name), 'c')
 for k in args.arxiv_id:
-    d[k] = args.s
+    if k not in d or float(d[k]) < float(s):
+        d[k] = args.s
 d.close()
 
