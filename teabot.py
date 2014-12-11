@@ -111,7 +111,8 @@ for i in get_largest_indices(median_scores, n_papers, 0):
         entry = entries[i]
         msg += u'<li><p>'
         msg += u'[%s] <a href="%s">%s</a> by %s et al.<br/>'%(\
-                entry['key'],entry['id'],entry['title'],entry['first_author'])
+                entry['key'], entry['id'], cgi.escape(entry['title']), \
+                cgi.escape(entry['first_author']))
         msg += u'Try asking: %s'%(', '.join(names))
         msg += u'</p></li>'
 msg += u'</ul><br/>'
@@ -137,12 +138,12 @@ for j in tester_idx:
         arxiv_id = entry['key']
         key = md5.md5(arxiv_id + person['arxivname'] + keypass).hexdigest()
         url = 'http://stanford.edu/~yymao/cgi-bin/kipac-teabot/taste-tea.py?id=%s&name=%s&key=%s'%(arxiv_id, person['arxivname'], key)
-        msg += u'<li><b><a href="%s">%s</a></b> by %s et al.<br/><br/>%s [<a href="%s">Read more</a>]<br/><br/><br/></li>'%(url, entry['title'], entry['first_author'], entry['summary'], url)
+        msg += u'<li><b><a href="%s">%s</a></b> by %s et al.<br/><br/>%s [<a href="%s">Read more</a>]<br/><br/><br/></li>'%(url, cgi.escape(entry['title']), cgi.escape(entry['first_author']), cgi.escape(entry['summary']), url)
     if not any_paper:
         continue
     msg += u'</ul>'
     email.send(from_me, '%s <%s>'%(person['name'], person['email']),
-            '[TeaBot] Best match on arXiv today: ' + best_title, 
+            '[TeaBot] Best match on arXiv today: ' + cgi.escape(best_title), 
             msg + footer)
 
 #close the email server
