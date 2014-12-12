@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
 import os
+import cgi
+
 if 'REQUEST_METHOD' in os.environ:
-    import cgi, cgitb
+    import cgitb
     cgitb.enable()
     print 'Content-Type: text/html'
     print
