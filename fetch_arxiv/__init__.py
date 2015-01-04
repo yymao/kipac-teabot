@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 
 _url_base = 'http://export.arxiv.org/api/query?'
 _prefix = '{http://www.w3.org/2005/Atom}'
-_arxiv_re = re.compile(r'\d{4}\.\d{4}|[a-z-]+(?:\.[A-Za-z-]+)?\/\d{7}')
+_arxiv_re = re.compile(r'\d{4}\.\d{4,5}|[a-z-]+(?:\.[A-Za-z-]+)?\/\d{7}')
 
 class arxiv_entry:
     def __init__(self, entry):
