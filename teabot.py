@@ -138,7 +138,7 @@ for j in tester_idx:
         continue
     msg += u'</ul>'
     email.send(from_me, '%s <%s>'%(person['name'], person['email']),
-            '[TeaBot] Best match on arXiv today: ' + cgi.escape(best_title), 
+            '[TeaBot] ' + cgi.escape(best_title), 
             msg + footer)
 
 #close the email server

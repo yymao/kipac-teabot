@@ -12,6 +12,7 @@ if 'REQUEST_METHOD' in os.environ:
 else:
     from email_server import email_server
 
+import time
 from urllib import urlopen
 import anydbm
 from fetch_arxiv import fetch_arxiv
@@ -34,7 +35,7 @@ with open(kipac_members_db, 'w') as fo:
                 search_query='cat:astro-ph*+AND+au:'+row['arxivname'], \
                 max_results=20, sortBy='submittedDate', sortOrder='descending')
         db_name = '%s/%s'%(model_dir, row['arxivname'])
-        d = anydbm.open(db_name, 'c')
+        d = anydbm.open(db_name, 'w')
         for entry in arxiv.iterentries():
             k = entry['key']
             if k not in d: #or float(d[k]) < 1:
