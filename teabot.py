@@ -8,15 +8,7 @@ if 'REQUEST_METHOD' in os.environ:
     cgitb.enable()
     print 'Content-Type: text/html'
     print
-    class email_server:
-        def __init__(self):
-            pass
-        def close(self):
-            pass
-        def send(self, From, To, subject, message):
-            print '<h2>', cgi.escape(To), '</h2>'
-            print message.encode('ascii', 'xmlcharrefreplace')
-            print '<br/><hr/>'
+    from email_server import email_server_dummy as email_server
 else:
     from email_server import email_server
 
@@ -30,6 +22,7 @@ from topic_model import topic_model, collection_weight, similarity_threshold
 from database import keypass, kipac_members_db, model_dir, collection_weight_path
 
 #get new arxiv entries
+#TODO: winter holiday schedule
 now = time.time()
 sec_per_day = 24*60*60
 to_time = time.gmtime(now-sec_per_day)
@@ -41,9 +34,9 @@ arxiv = fetch_arxiv(max_results=200, \
         search_query='cat:astro-ph*+AND+submittedDate:[%s+TO+%s]'%(\
         from_time, to_time))
 entries = arxiv.getentries()
-del arxiv
 if len(entries) == 0:
     sys.exit(0)
+del arxiv
 
 #load kipac members
 people = []

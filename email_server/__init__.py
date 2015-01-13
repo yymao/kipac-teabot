@@ -1,5 +1,6 @@
-__all__ = ['email_server']
+__all__ = ['email_server', 'email_server_dummy']
 
+import cgi
 from smtplib import SMTP
 from email.mime.text import MIMEText
 import email.charset
@@ -31,4 +32,18 @@ class email_server():
 
     def close(self):
         self._server.quit()
+
+class email_server_dummy:
+    def __init__(self):
+        pass
+
+    def close(self):
+        pass
+
+    def send(self, From, To, subject, message):
+        if _is_string_like(To):
+            To = [To]
+        print '<h2>', cgi.escape(', '.join(To)), '</h2>'
+        print message.encode('ascii', 'xmlcharrefreplace')
+        print '<br/><hr/>'
 
