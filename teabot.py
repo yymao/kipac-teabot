@@ -87,7 +87,7 @@ def get_largest_indices(scores, limit, threshold=similarity_threshold):
 
 #start an email server
 email = email_server()
-from_me = 'KIPAC Tea Bot <teabot@kipac.stanford.edu>'
+from_me = 'KIPAC TeaBot <teabot@kipac.stanford.edu>'
 footer =  u'<p>This message is automatically generated and sent by KIPAC TeaBot.<br/>'
 footer += u'<a href="https://github.com/yymao/kipac-teabot/issues?state=open">Create an issue</a> if you have any suggestions/questions.</p>'
 
@@ -113,8 +113,7 @@ for i in get_largest_indices(median_scores, n_papers, 0):
 msg += u'</ul><br/>'
 if any_paper:
     email.send(from_me, 'KIPAC tealeaks <tealeaks@kipac.stanford.edu>', \
-            '[TeaBot] New arXiv papers ' \
-            + time.strftime('%m/%d',time.localtime()), \
+            '[TeaBot] %s new papers on arXiv'%(time.strftime('%m/%d',time.localtime())), \
             msg + footer)
 
 #find interesting papers for individual members

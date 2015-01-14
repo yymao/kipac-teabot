@@ -42,14 +42,13 @@ with open(kipac_members_db, 'w') as fo:
         d.close()
 
 if any_new:
-    msg += u'</ul>'
+    msg += u'</ul><br/>'
     msg += u'<p>This message is automatically generated and sent by KIPAC TeaBot.<br/>'
     msg += u'<a href="https://github.com/yymao/kipac-teabot/issues?state=open">Create an issue</a> if you have any suggestions/questions.</p>'
     email = email_server()
-    email.send('KIPAC Tea Bot <teabot@kipac.stanford.edu>', \
+    email.send('KIPAC TeaBot <teabot@kipac.stanford.edu>', \
                new_paper_discovery, \
-               '[TeaBot] New arXiv papers by KIPAC members' \
-                       + time.strftime('%m/%d',time.localtime()), \
+               '[TeaBot] %s new arXiv papers by KIPAC members'%(time.strftime('%m/%d',time.localtime())), \
                msg)
     email.close()
 
