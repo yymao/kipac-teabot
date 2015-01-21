@@ -46,7 +46,8 @@ with open(member_list_path, 'r') as f:
     for line in f:
         row = dict(zip(header, line.strip().split(',')))
         row['model'] = Member(row['arxivname']).get_model()
-        people.append(row)
+        if row['model'] is not None:
+            people.append(row)
 if len(people) == 0:
     sys.exit(0)
 

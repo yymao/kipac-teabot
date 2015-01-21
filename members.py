@@ -42,8 +42,7 @@ if args.command=='pull':
             if not m.has_weights_db():
                 print row['arxivname'], 'is a new member, please add', row['arxivname']
                 continue
-            if m.has_weights():
-                fo.write(line)
+            fo.write(line)
 
 elif args.command=='add':
     m = Member(args.arxiv_name)
