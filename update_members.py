@@ -5,6 +5,7 @@ import cgi
 import time
 from urllib import urlopen
 import anydbm
+from whichdb import whichdb
 from fetch_arxiv import fetch_arxiv
 from email_server import email_server
 from database import kipac_members_url, kipac_members_db, model_dir, new_paper_discovery
@@ -23,11 +24,13 @@ with open(kipac_members_db, 'w') as fo:
         if int(row['active'] or 0) + int(row['tester'] or 0) == 0:
             continue
         print row['arxivname']
+        db_name = '%s/%s'%(model_dir, row['arxivname'])
+        max_results = 50 if whichdb(db_name) is None else 10
         arxiv = fetch_arxiv( \
                 search_query='cat:astro-ph*+AND+au:'+row['arxivname'], \
-                max_results=10, sortBy='submittedDate', sortOrder='descending')
-        db_name = '%s/%s'%(model_dir, row['arxivname'])
-        d = anydbm.open(db_name, 'w')
+                max_results=max_results, sortBy='submittedDate', \
+                sortOrder='descending')
+        d = anydbm.open(db_name, 'c')
         for entry in arxiv.iterentries():
             k = entry['key']
             if k not in d: #or float(d[k]) < 1:
