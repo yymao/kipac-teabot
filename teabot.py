@@ -19,7 +19,8 @@ import numpy as np
 
 from fetch_arxiv import fetch_arxiv
 from topic_model import topic_model, collection_weight, similarity_threshold
-from database import keypass, kipac_members_db, model_dir, collection_weight_path
+from secrets import keypass, member_list_path, collection_weight_path
+from Member import Member
 
 #get new arxiv entries
 #TODO: winter holiday schedule
@@ -40,12 +41,11 @@ del arxiv
 
 #load kipac members
 people = []
-with open(kipac_members_db, 'r') as f:
+with open(member_list_path, 'r') as f:
     header = f.next().strip().split(',')
     for line in f:
         row = dict(zip(header, line.strip().split(',')))
-        with open('%s/%s.model'%(model_dir, row['arxivname']), 'rb') as fm:
-            row['model'] = topic_model(fm.read())
+        row['model'] = Member(row['arxivname']).get_model()
         people.append(row)
 if len(people) == 0:
     sys.exit(0)
