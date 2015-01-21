@@ -55,7 +55,7 @@ class Member:
         if os.path.isfile(self._weights_path):
             raise ValueError('Weights database for ' + self.arxiv_name + ' already exists')
         arxiv = fetch_arxiv( \
-                search_query='cat:astro-ph*+AND+au:'+args.arxiv_name, \
+                search_query='cat:astro-ph*+AND+au:'+self.arxiv_name, \
                 max_results=50, sortBy='submittedDate', sortOrder='descending')
         with self.get_weights_db('n') as d:
             for entry in arxiv.iterentries():

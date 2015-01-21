@@ -16,6 +16,7 @@ with open(member_list_path, 'r') as f:
     header = f.next().strip().split(',')
     for line in f:
         row = dict(zip(header, line.strip().split(',')))
+        print row['arxivname']
         arxiv = fetch_arxiv( \
                 search_query='cat:astro-ph*+AND+au:'+row['arxivname'], \
                 max_results=10, sortBy='submittedDate', sortOrder='descending')
@@ -36,8 +37,7 @@ if any_new:
     msg += u'<a href="https://github.com/yymao/kipac-teabot/issues?state=open">Create an issue</a> if you have any suggestions/questions.</p>'
     email = email_server()
     email.send('KIPAC TeaBot <teabot@kipac.stanford.edu>', \
-               new_paper_discovery, \
+               discovery_team, \
                '[TeaBot] %s new arXiv papers by KIPAC members'%(time.strftime('%m/%d',time.localtime())), \
                msg)
     email.close()
-

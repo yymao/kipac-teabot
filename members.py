@@ -39,10 +39,10 @@ if args.command=='pull':
             if int(row['active'] or 0) + int(row['tester'] or 0) == 0:
                 continue
             m = Member(row['arxivname'])
-            if not has_weights_db():
+            if not m.has_weights_db():
                 print row['arxivname'], 'is a new member, please add', row['arxivname']
                 continue
-            if has_weights():
+            if m.has_weights():
                 fo.write(line)
 
 elif args.command=='add':
@@ -71,5 +71,6 @@ elif args.command=='testers':
         header = f.next().strip().split(',')
         for line in f:
             row = dict(zip(header, line.strip().split(',')))
-            print row['name'], '<%s>,'%(row['email'])
+            if int(row['tester'] or 0):
+                print row['name'], '<%s>,'%(row['email'])
 
