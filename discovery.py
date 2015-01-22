@@ -17,14 +17,19 @@ with open(member_list_path, 'r') as f:
     for line in f:
         row = dict(zip(header, line.strip().split(',')))
         print row['arxivname']
-        arxiv = fetch_arxiv( \
-                search_query='cat:astro-ph*+AND+au:'+row['arxivname'], \
-                max_results=10, sortBy='submittedDate', sortOrder='descending')
+        try:
+            arxiv = fetch_arxiv( \
+                    search_query='cat:astro-ph*+AND+au:'+row['arxivname'], \
+                    max_results=10, sortBy='submittedDate', \
+                    sortOrder='descending')
+        except IOError:
+            print row['arxivname'], 'was not updated due to connection error.'
+            continue
         m = Member(row['arxivname'])
         with m.get_weights_db('w') as d:
             for entry in arxiv.iterentries():
                 k = entry['key']
-                if k not in d: #or float(d[k]) < 1:
+                if k not in d: or float(d[k]) < 1:
                     d[k] = '1'
                     any_new = True
                     msg += u'<li>%s: [%s] <a href="%s">%s</a></li>'%(\
@@ -41,3 +46,4 @@ if any_new:
                '[TeaBot] %s new arXiv papers by KIPAC members'%(time.strftime('%m/%d',time.localtime())), \
                msg)
     email.close()
+

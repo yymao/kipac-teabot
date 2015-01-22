@@ -33,7 +33,16 @@ class fetch_arxiv:
         """
         url = _url_base + '&'.join([k+'='+str(v) \
                 for k, v in keywords.iteritems()])
-        self.root = ET.parse(urlopen(url)).getroot()
+        for i in range(5):
+            try:
+                f = urlopen(url)
+            except IOError:
+                continue
+            else:
+                break
+        else:
+            raise IOError('cannot connect to arXiv')
+        self.root = ET.parse(f).getroot()
         first_entry = self.root.find(_prefix+'entry')
         if first_entry is not None and \
                 first_entry.findtext(_prefix+'title') == 'Error':
