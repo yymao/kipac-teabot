@@ -29,7 +29,7 @@ with open(member_list_path, 'r') as f:
         with m.get_weights_db('w') as d:
             for entry in arxiv.iterentries():
                 k = entry['key']
-                if k not in d: or float(d[k]) < 1:
+                if k not in d or float(d[k]) < 1:
                     d[k] = '1'
                     any_new = True
                     msg += u'<li>%s: [%s] <a href="%s">%s</a></li>'%(\
