@@ -5,7 +5,7 @@ import sys
 import time
 import json
 import cgi
-from fetch_arxiv import fetch_arxiv
+from fetch_arxiv import fetch_arxiv, get_time_range
 from email_server import email_server
 from secrets import member_list_path, discovery_team, discovery_archive
 from Member import Member
@@ -17,11 +17,10 @@ with open(member_list_path, 'r') as f:
     for line in f:
         row = dict(zip(header, line.strip().split(',')))
         print row['arxivname']
+        t = get_time_range(time.time(), 2) + (row['arxivname'],)
+        q = 'cat:astro-ph*+AND+submittedDate:[%s+TO+%s]+AND+au:%s'%t
         try:
-            arxiv = fetch_arxiv( \
-                    search_query='cat:astro-ph*+AND+au:'+row['arxivname'], \
-                    max_results=10, sortBy='submittedDate', \
-                    sortOrder='descending')
+            arxiv = fetch_arxiv(search_query=q, max_results=10)
         except IOError:
             sys.stderr.write(row['arxivname'] \
                     + 'was not updated due to connection error.\n')
@@ -38,7 +37,7 @@ with open(member_list_path, 'r') as f:
 
 if papers:
     #save to archive
-    fname = '%s/%d.json'%(discovery_archive, time.strftime('%Y%m%d'))
+    fname = '%s/%s.json'%(discovery_archive, time.strftime('%Y%m%d'))
     with open(fname, 'w') as f:
         json.dump(papers, f)
 

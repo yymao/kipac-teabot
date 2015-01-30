@@ -11,8 +11,6 @@ import time
 import json
 from secrets import discovery_archive
 
-files = os.listdir(discovery_archive)
-files.sort(reverse=True)
 
 print '''
 <!DOCTYPE html>
@@ -30,16 +28,23 @@ print '''
   <div class="l-box">
     <h1>New arXiv papers by KIPAC members</h1>
 '''
-def fname2date(f):
-    return '/'.join([f[4:6], f[6:8], f[:4]])
+
+backto = int(time.strftime('%Y%m%d', time.localtime(time.time()-31*24*60*60)))
+files = os.listdir(discovery_archive)
+files = filter(lambda i: i>backto, map(lambda s: int(s[:-5]), files))
+files.sort(reverse=True)
+files = map(str, files)
 
 for f in files:
-    with open('%s/%s'%(discovery_archive, f)) as fp:
+    with open('%s/%s.json'%(discovery_archive, f)) as fp:
         papers = json.load(fp)
-    print '<h2>%s</h2>'%(fname2date(f))
+    print '<h2>%s</h2>'%('/'.join([f[4:6], f[6:8], f[:4]]))
     print '<ul>'
-    for k, v in papers.iteritems():
-        print u'<li><p><b>[%s] <a href="http://arxiv.org/abs/%s">%s</a></b><br>'%(k, k, cgi.escape(v[0]))
+    keys = papers.keys()
+    keys.sort(reverse=True)
+    for k in keys:
+        v = papers[k]
+        print u'<li><p><b>[%s]</b> <a href="http://arxiv.org/abs/%s">%s</a><br>'%(k, k, cgi.escape(v[0]))
         print u'by', u', '.join(map(lambda s: cgi.escape(s.partition(' <')[0]), v[1:]))
         print '</p></li>'
     print '</ul><br>'
@@ -49,3 +54,4 @@ print """
 </body>
 </html>
 """
+

@@ -1,5 +1,6 @@
-__all__ = ['fetch_arxiv']
+__all__ = ['fetch_arxiv', 'get_time_range']
 import re
+import time
 from urllib import urlopen
 import xml.etree.ElementTree as ET
 
@@ -55,4 +56,36 @@ class fetch_arxiv:
         for entry in self.root.iterfind(_prefix+'entry'):
             yield arxiv_entry(entry)
 
+
+
+#announcement time:        03:00 UTC (02:00 if DST)
+#submission deadline time: 21:00 UTC (20:00 if DST)
+
+_oneday = 24*60*60
+_holidays = []
+
+def _parse_time(t):
+    return t, time.gmtime(t), time.localtime(t).tm_isdst
+
+def _print_date(t_st):
+    return time.strftime('%Y%m%d', t_st)
+
+def _print_deadline(t):
+    now, now_st, dst = _parse_time(t)
+    return '%s%d00'%(_print_date(now_st), 21-dst)
+
+def _last_workday(t):
+    now, now_st, dst = _parse_time(t)
+    while now_st.tm_wday >= 5 or _print_date(now_st) in _holidays:
+        now, now_st, dst = _parse_time(now-_oneday)
+    return now
+
+def get_time_range(t, fwd_days=1):
+    now, now_st, dst = _parse_time(t)
+    now = _last_workday(now if now_st.tm_hour + dst >= 3 else now-_oneday)
+    now = _last_workday(now-_oneday)
+    then = now
+    for __ in range(fwd_days):
+        then = _last_workday(then-_oneday)
+    return _print_deadline(then), _print_deadline(now)
 
