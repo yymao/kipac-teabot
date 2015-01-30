@@ -30,12 +30,13 @@ print '''
   <div class="l-box">
     <h1>New arXiv papers by KIPAC members</h1>
 '''
+def fname2date(f):
+    return '/'.join([f[4:6], f[6:8], f[:4]])
 
 for f in files:
     with open('%s/%s'%(discovery_archive, f)) as fp:
         papers = json.load(fp)
-    print '<h2>%s</h2>'%(\
-            time.strftime('%m/%d/%Y', time.localtime(float(f[:-5]))))
+    print '<h2>%s</h2>'%(fname2date(f))
     print '<ul>'
     for k, v in papers.iteritems():
         print u'<li><p><b>[%s] <a href="http://arxiv.org/abs/%s">%s</a></b><br>'%(k, k, cgi.escape(v[0]))

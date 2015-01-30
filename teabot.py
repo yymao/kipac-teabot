@@ -23,17 +23,37 @@ from secrets import keypass, member_list_path, collection_weight_path
 from Member import Member
 
 #get new arxiv entries
-#TODO: winter holiday schedule
-now = time.time()
-sec_per_day = 24*60*60
-to_time = time.gmtime(now-sec_per_day)
-from_time = time.gmtime(now-sec_per_day*(2 if time.gmtime(now).tm_wday else 4))
-from_time = time.strftime('%Y%m%d2000', from_time)
-to_time = time.strftime('%Y%m%d2000', to_time)
+#announcement time:        03:00 UTC (02:00 if DST)
+#submission deadline time: 21:00 UTC (20:00 if DST)
+
+oneday = 24*60*60
+holidays = ['20141225', '20141226', '20141231', '20150101']
+
+def parse_time(t):
+    return t, time.gmtime(t), time.localtime(t).tm_isdst
+
+def print_date(t_st):
+    return time.strftime('%Y%m%d', t_st)
+
+def print_deadline(t):
+    now, now_st, dst = parse_time(t)
+    return '%s%d00'%(print_date(now_st), 21-dst)
+
+def last_workday(t):
+    now, now_st, dst = parse_time(t)
+    while now_st.tm_wday >= 5 or print_date(now_st) in holidays:
+        now, now_st, dst = parse_time(now-oneday)
+    return now
+
+def get_time_range(t):
+    now, now_st, dst = parse_time(t)
+    now = last_workday(now if now_st.tm_hour + dst >= 3 else now-oneday)
+    now = last_workday(now-oneday)
+    return print_deadline(last_workday(now-oneday)), print_deadline(now)
 
 arxiv = fetch_arxiv(max_results=200, \
-        search_query='cat:astro-ph*+AND+submittedDate:[%s+TO+%s]'%(\
-        from_time, to_time))
+        search_query='cat:astro-ph*+AND+submittedDate:[%s+TO+%s]'%\
+        get_time_range(time.time()))
 entries = arxiv.getentries()
 if len(entries) == 0:
     sys.exit(0)

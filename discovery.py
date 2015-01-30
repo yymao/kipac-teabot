@@ -38,7 +38,8 @@ with open(member_list_path, 'r') as f:
 
 if papers:
     #save to archive
-    with open('%s/%d.json'%(discovery_archive, int(time.time())), 'w') as f:
+    fname = '%s/%d.json'%(discovery_archive, time.strftime('%Y%m%d'))
+    with open(fname, 'w') as f:
         json.dump(papers, f)
 
     #prepare email
