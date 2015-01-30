@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
 import os
-import cgi
+import sys
 import time
+import json
+import cgi
 from fetch_arxiv import fetch_arxiv
 from email_server import email_server
-from secrets import member_list_path, discovery_team
+from secrets import member_list_path, discovery_team, discovery_archive
 from Member import Member
 
 papers = {}
@@ -21,7 +23,8 @@ with open(member_list_path, 'r') as f:
                     max_results=10, sortBy='submittedDate', \
                     sortOrder='descending')
         except IOError:
-            print row['arxivname'], 'was not updated due to connection error.'
+            sys.stderr.write(row['arxivname'] \
+                    + 'was not updated due to connection error.\n')
             continue
         m = Member(row['arxivname'])
         with m.get_weights_db('w') as d:
@@ -34,6 +37,11 @@ with open(member_list_path, 'r') as f:
                     papers[k].append('%s <%s>'%(row['name'], row['email']))
 
 if papers:
+    #save to archive
+    with open('%s/%d.json'%(discovery_archive, int(time.time())), 'w') as f:
+        json.dump(papers, f)
+
+    #prepare email
     msg = u'<h2>Here\'s a list of new arXiv papers authored by KIPAC members:</h2>'
     msg += u'<ul>'
     for k, v in papers.iteritems():
@@ -45,9 +53,8 @@ if papers:
     msg += u'<p>This message is automatically generated and sent by KIPAC TeaBot.<br/>'
     msg += u'<a href="https://github.com/yymao/kipac-teabot/issues?state=open">Create an issue</a> if you have any suggestions/questions.</p>'
     email = email_server()
-    email.send('KIPAC TeaBot <teabot@kipac.stanford.edu>', \
-               discovery_team, \
-               '[TeaBot] %s new arXiv papers by KIPAC members'%(time.strftime('%m/%d',time.localtime())), \
-               msg)
+    email.send('KIPAC TeaBot <teabot@kipac.stanford.edu>', discovery_team, \
+               '[TeaBot] %s new arXiv papers by KIPAC members'%(\
+               time.strftime('%m/%d')), msg)
     email.close()
 
