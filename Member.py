@@ -32,10 +32,10 @@ class Member:
         self.arxiv_name = new_arxiv_name
         if os.path.isfile(self._get_path('weights')):
             raise ValueError('Weights database for ' + self.arxiv_name + ' already exists')
-        if not os.path.isfile(self._weights_path):
+        if os.path.isfile(self._weights_path):
             os.rename(self._weights_path, self._get_path('weights'))
         self._weights_path = self._get_path('weights')
-        if not os.path.isfile(self._model_path):
+        if os.path.isfile(self._model_path):
             os.rename(self._model_path, self._get_path('model'))
         self._model_path = self._get_path('model')
 
