@@ -84,8 +84,6 @@ def get_time_range(t, fwd_days=1):
     now, now_st, dst = _parse_time(t)
     now = _last_workday(now if now_st.tm_hour + dst >= 3 else now-_oneday)
     now = _last_workday(now-_oneday)
-    then = now
-    for __ in range(fwd_days):
-        then = _last_workday(then-_oneday)
+    then = _last_workday(now-_oneday*fwd_days)
     return _print_deadline(then), _print_deadline(now)
 
