@@ -38,6 +38,7 @@ class fetch_arxiv:
             try:
                 f = urlopen(url)
             except IOError:
+                time.sleep(2)
                 continue
             else:
                 break
