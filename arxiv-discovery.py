@@ -29,8 +29,9 @@ print '''
     <h1>New arXiv papers by KIPAC members</h1>
 '''
 
-backto = int(time.strftime('%Y%m%d', time.localtime(time.time()-31*24*60*60)))
+backto = int(time.strftime('%Y%m%d', time.localtime(time.time()-90*24*60*60)))
 files = os.listdir(discovery_archive)
+files = filter(lambda s: s.endswith('.json'), files)
 files = filter(lambda i: i>backto, map(lambda s: int(s[:-5]), files))
 files.sort(reverse=True)
 files = map(str, files)

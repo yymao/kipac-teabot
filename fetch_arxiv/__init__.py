@@ -58,7 +58,7 @@ class fetch_arxiv:
 
 
 
-#announcement time:        03:00 UTC (02:00 if DST)
+#announcement time:        04:00 UTC (03:00 if DST)
 #submission deadline time: 21:00 UTC (20:00 if DST)
 
 _oneday = 24*60*60
@@ -82,7 +82,7 @@ def _last_workday(t):
 
 def get_time_range(t, fwd_days=1):
     now, now_st, dst = _parse_time(t)
-    now = _last_workday(now if now_st.tm_hour + dst >= 3 else now-_oneday)
+    now = _last_workday(now if now_st.tm_hour + dst >= 4 else now-_oneday)
     now = _last_workday(now-_oneday)
     then = _last_workday(now-_oneday*fwd_days)
     return _print_deadline(then), _print_deadline(now)
