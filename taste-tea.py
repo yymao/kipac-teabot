@@ -6,6 +6,7 @@ form = cgi.FieldStorage()
 arxiv_id = str(form.getvalue('id'))
 name = form.getvalue('name')
 key = form.getvalue('key')
+abstract = form.getvalue('abs')
 
 if name and key:
     import md5
@@ -16,7 +17,13 @@ if name and key:
             if arxiv_id not in d or float(d[arxiv_id]) < score:
                 d[arxiv_id] = str(score)
 
-url = ('http://arxiv.org/pdf/%s.pdf'%(arxiv_id)) if arxiv_id else 'http://arxiv.org'
+if arxiv_id:
+    if abstract:
+        url = 'http://arxiv.org/abs/' + arxiv_id
+    else:
+        url = 'http://arxiv.org/pdf/%s.pdf'%(arxiv_id)
+else:
+    url = 'http://arxiv.org/list/astro-ph/recent'
 
 print 'Location:', url
 print
