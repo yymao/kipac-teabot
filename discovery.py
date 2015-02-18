@@ -42,19 +42,16 @@ if papers:
         json.dump(papers, f)
 
     #prepare email
-    msg = u'<h2>Here\'s a list of new arXiv papers authored by KIPAC members:</h2>'
-    msg += u'<ul>'
-    for k, v in papers.iteritems():
-        msg += u'<li><p><b>[%s] <a href="http://arxiv.org/abs/%s">%s</a></b></p><p>'%(k, k, cgi.escape(v[0]))
-        msg += u',<br/>'.join(map(cgi.escape, v[1:]))
-        msg += u'<br/></p></li>'
-    msg += u'</ul><br/>'
-    msg += u'<p>If this report is accurate, you might send the members above a congratulatory email!</p><br/>'
-    msg += u'<p>This message is automatically generated and sent by KIPAC TeaBot.<br/>'
-    msg += u'<a href="https://github.com/yymao/kipac-teabot/issues?state=open">Create an issue</a> if you have any suggestions/questions.</p>'
     email = email_server()
-    email.send('KIPAC TeaBot <teabot@kipac.stanford.edu>', discovery_team, \
-               '[TeaBot] %s new arXiv papers by KIPAC members'%(\
-               time.strftime('%m/%d')), msg)
+    for k, v in papers.iteritems():
+        msg = u'<p>This new paper that appears on arXiv today is (allegedly) authored by KIPAC member(s):</p>'
+        msg += u'<p style="margin-left: 4em;"><b>[%s] <a href="http://arxiv.org/abs/%s">%s</a></b><br/><br/>'%(k, k, cgi.escape(v[0]))
+        msg += u',<br/>'.join(map(cgi.escape, v[1:]))
+        msg += u'</p><br/>'
+        msg += u'<p>If this report is accurate, you might send the member(s) above a congratulatory email!</p><br/>'
+        msg += u'<p>This message is automatically generated and sent by KIPAC TeaBot.<br/>'
+        msg += u'<a href="https://github.com/yymao/kipac-teabot/issues?state=open">Create an issue</a> if you have any suggestions/questions.</p>'
+        email.send('KIPAC TeaBot <teabot@kipac.stanford.edu>', discovery_team, \
+                '[TeaBot][Discovery] %s'%cgi.escape(v[0]),  msg)
     email.close()
 
