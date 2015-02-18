@@ -45,11 +45,11 @@ if papers:
     email = email_server()
     for k, v in papers.iteritems():
         msg = u'<p>This new paper that appears on arXiv today is (allegedly) authored by KIPAC member(s):</p>'
-        msg += u'<ul><li><p>[%s] <a href="http://arxiv.org/abs/%s">%s</a></b><br/><br/>'%(k, k, cgi.escape(v[0]))
-        msg += u',<br/>'.join(map(cgi.escape, v[1:]))
-        msg += u'</p></li></ul>'
+        msg += u'<ul><li>[%s] <a href="http://arxiv.org/abs/%s">%s</a></b> <br><br>'%(k, k, cgi.escape(v[0]))
+        msg += u', <br>'.join(map(cgi.escape, v[1:]))
+        msg += u'</li></ul>'
         msg += u'<p>If this report is accurate, you might send the member(s) above a congratulatory email!</p>'
-        msg += u'<br/><p>This message is automatically generated and sent by KIPAC TeaBot.<br/>'
+        msg += u'<br><p>This message is automatically generated and sent by KIPAC TeaBot. <br>'
         msg += u'<a href="https://github.com/yymao/kipac-teabot/issues?state=open">Create an issue</a> if you have any suggestions/questions.</p>'
         email.send('KIPAC TeaBot <teabot@kipac.stanford.edu>', discovery_team, \
                 '[TeaBot][Discovery] %s'%cgi.escape(v[0]),  msg)

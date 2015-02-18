@@ -81,7 +81,7 @@ def get_largest_indices(scores, limit, threshold=similarity_threshold):
 #start an email server
 email = email_server()
 from_me = 'KIPAC TeaBot <teabot@kipac.stanford.edu>'
-footer =  u'<p>This message is automatically generated and sent by KIPAC TeaBot.<br/>'
+footer =  u'<br><p>This message is automatically generated and sent by KIPAC TeaBot. <br>'
 footer += u'<a href="https://github.com/yymao/kipac-teabot/issues?state=open">Create an issue</a> if you have any suggestions/questions.</p>'
 
 #find papers that members are interested
@@ -97,13 +97,11 @@ for i in get_largest_indices(median_scores, n_papers, 0):
     if names:
         any_paper = True
         entry = entries[i]
-        msg += u'<li><p>'
-        msg += u'[%s] <a href="%s">%s</a> by %s et al.<br/>'%(\
+        msg += u'<li>[%s] <a href="%s">%s</a> by %s et al. <br>'%(\
                 entry['key'], entry['id'], cgi.escape(entry['title']), \
                 cgi.escape(entry['first_author']))
-        msg += u'Try asking: %s'%(', '.join(names))
-        msg += u'</p></li>'
-msg += u'</ul><br/>'
+        msg += u'Try asking: %s</li>'%(', '.join(names))
+msg += u'</ul>'
 if any_paper:
     email.send(from_me, 'KIPAC tealeaks <tealeaks@kipac.stanford.edu>', \
             '[TeaBot] %s new papers on arXiv'%(time.strftime('%m/%d',time.localtime())), \
@@ -113,8 +111,8 @@ if any_paper:
 n_papers = 3
 for j in tester_idx:
     person = people[j]
-    msg = u'Hi %s,<br/><br/>'%(person['nickname'])
-    msg += u'TeaBot thinks you\'ll find the following paper(s) on arXiv today interesting:<br/>'
+    msg = u'Hi %s, <br><br>'%(person['nickname'])
+    msg += u'TeaBot thinks you\'ll find the following paper(s) on arXiv today interesting: <br>'
     msg += u'<ul>'
     any_paper = False
     for i in get_largest_indices(scores[:, j], n_papers):
@@ -125,7 +123,7 @@ for j in tester_idx:
         arxiv_id = entry['key']
         key = md5.md5(arxiv_id + person['arxivname'] + keypass).hexdigest()
         url = 'https://web.stanford.edu/~yymao/cgi-bin/kipac-teabot/taste-tea.py?id=%s&name=%s&key=%s'%(arxiv_id, person['arxivname'], key)
-        msg += u'<li>[<a href="%s&abs=on">%s</a>] <b><a href="%s">%s</a></b><br/>by %s et al.<br/><br/>%s [<a href="%s">Read more</a>]<br/><br/><br/></li>'%(\
+        msg += u'<li>[<a href="%s&abs=on">%s</a>] <b><a href="%s">%s</a></b> <br>by %s et al. <br><br>%s [<a href="%s">Read more</a>]<br><br><br></li>'%(\
                 url, arxiv_id, url, cgi.escape(entry['title']), cgi.escape(entry['first_author']), cgi.escape(entry['summary']), url)
     if not any_paper:
         continue
