@@ -22,6 +22,7 @@ print '''
   <link rel="stylesheet" href="//cdn.jsdelivr.net/pure/0.5.0/pure-min.css">
   <style>
   .l-box {padding: 1em;}
+  li {padding-bottom: 0.67em;}
   </style>
 </head>
 <body>
@@ -45,10 +46,10 @@ for f in files:
     keys.sort(reverse=True)
     for k in keys:
         v = papers[k]
-        print u'<li><p><b>[%s]</b> <a href="http://arxiv.org/abs/%s">%s</a><br>'%(k, k, cgi.escape(v[0]))
-        print u'by', u', '.join(map(lambda s: cgi.escape(s.partition(' <')[0]), v[1:]))
-        print '</p></li>'
-    print '</ul><br>'
+        msg = u'<li><b>[%s]</b> <a href="http://arxiv.org/abs/%s">%s</a><br>'%(k, k, cgi.escape(v[0]))
+        msg += u'by %s</li>'%(u', '.join(map(lambda s: cgi.escape(s.partition(' <')[0]), v[1:])))
+        print msg.encode('utf-8')
+    print '</ul>'
 
 print """
   </div>
