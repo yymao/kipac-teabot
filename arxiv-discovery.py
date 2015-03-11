@@ -18,15 +18,21 @@ print '''
 <head>
   <title>New arXiv papers by KIPAC members</title>
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="robots" content="noindex, nofollow">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/pure/0.5.0/pure-min.css">
   <style>
-  .l-box {padding: 1em;}
+  .layout {
+     margin-left: auto;
+     margin-right: auto;
+     max-width: 900px;
+     padding: 0.5em 1em 3em 1em;
+   }
   li {padding-bottom: 0.67em;}
   </style>
 </head>
 <body>
-  <div class="l-box">
+  <div class="layout">
     <h1>New arXiv papers by KIPAC members</h1>
 '''
 
