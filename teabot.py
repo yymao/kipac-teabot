@@ -102,6 +102,7 @@ for i in get_largest_indices(median_scores, n_papers, 0):
                 cgi.escape(entry['first_author']))
         msg += u'Try asking: %s</li>'%(', '.join(names))
 msg += u'</ul>'
+msg += u'<br><p>Also check <a herf="http://stanford.edu/~yymao/cgi-bin/kipac-teabot/arxiv-discovery">this page</a> for new arXiv papers authored by KIPAC members.</p>'
 if any_paper:
     email.send(from_me, 'KIPAC tealeaks <tealeaks@kipac.stanford.edu>', \
             '[TeaBot] %s new papers on arXiv'%(time.strftime('%m/%d',time.localtime())), \
