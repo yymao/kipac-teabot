@@ -4,3 +4,7 @@ Require user yymao
 Allow from all
 Satisfy Any
 </FilesMatch>
+<FilesMatch "find-someone(\.html)?">
+Allow from all
+Satisfy Any
+</FilesMatch>

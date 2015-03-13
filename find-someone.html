@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <title>TeaBot, find someone for me!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/pure/0.5.0/pure-min.css">
+  <style>
+  .layout{
+    padding: 1em 1em 4em 1em;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  #id{
+    width: 100%;
+  }
+  .error{
+    color: #dd514c;
+  }
+  #result{
+    padding: 0.33em 1em 2em 1em;
+  }
+  #result h4{
+    margin: 0 0 1em 0;
+  }
+  #result p{
+    margin: 0 0 0.25em 2em;
+  }
+  .footer{
+    font-size: small;
+  }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <center>
+    <h1>TeaBot, find someone for me!</h1>
+    <form class="pure-form">
+      <fieldset>
+        <p><input id="id" name="id" required placeholder="arXiv ID or URL"></p>
+        <p><button type="submit" class="pure-button pure-button-primary">Show me!</button></p>
+      </fieldset>
+    </form>
+    </center>
+    <div id="result"></div>
+    <center>
+    <p class="footer">By <a href="http://web.stanford.edu/~yymao/">Yao-Yuan Mao</a> (2015). Part of the <a href="https://github.com/yymao/kipac-teabot">KIPAC TeaBot</a> project.</p>
+    </center>
+  </div>
+  <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+  <script type="text/javascript">
+    var arxiv_pattern = /\d{4}\.\d{4,5}|[a-z-]+(?:\.[A-Za-z-]+)?\/\d{7}/;
+
+    $("form").submit(function(event){
+      event.preventDefault();
+      $("#result").html("<p>Please be patient. TeaBot is knocking on people's doors...</p>");
+      var m = arxiv_pattern.exec($("#id").val());
+      if (m === null){
+        $("#result").html("<p class=\"error\">Error: wrong arXiv ID.</p>");
+        return;
+      };
+      $.get("find-someone.py", {"id":m[0]}, function(data){
+        $("#result").html(data);
+      }, "html");
+      window.location.hash = "#" + m[0];
+    });
+
+    if (window.location.hash.substr(1)!=""){
+      $("#id").val(window.location.hash.substr(1));
+      $("form").submit();
+    }
+  </script> 
+</body>
+</html>
+
