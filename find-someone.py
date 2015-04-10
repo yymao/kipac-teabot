@@ -21,7 +21,7 @@ try:
         raise ValueError('arXiv ID {0} not found.'.format(arxiv_id))
 
     model = topic_model()
-    model.add_document('{0[title]}. {0[summary]}'.format(entry))
+    model.add_document(u'{0[title]}. {0[summary]}'.format(entry))
 
     #load kipac members
     people = []
@@ -43,7 +43,7 @@ try:
     scores = [model.get_similarity(person['model']) for person in people]
     idx = sorted(xrange(len(scores)), key=scores.__getitem__, reverse=True)[:15]
 
-    print '<h4>[<a href="http://arxiv.org/abs/{0}">{0}</a>] {1}</h4>'.format(arxiv_id, cgi.escape(entry['title']))
+    print u'<h4>[<a href="http://arxiv.org/abs/{0}">{0}</a>] {1}</h4>'.format(arxiv_id, cgi.escape(entry['title'])).encode('utf-8')
     for i in idx:
         print '<p title="score = {1:.4f}">{0[name]} &lt;{0[email]}&gt;, </p>'.format(people[i], scores[i]*100.0)
 
