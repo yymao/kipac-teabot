@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 
 import cgi
-import cgitb
-cgitb.enable()
-print 'Content-Type: text/html'
+#import cgitb
+#cgitb.enable()
+form = cgi.FieldStorage()
+
+plain_text = (form.getvalue('fmt') == 'txt')
+
+print 'Content-Type: text/plain' if plain_text else 'Content-Type: text/html' 
 print
 
 import os
@@ -11,8 +15,8 @@ import time
 import json
 from secrets import discovery_archive
 
-
-print '''
+if not plain_text:
+    print '''
 <!DOCTYPE html>
 <html>
 <head>
@@ -46,18 +50,24 @@ files = map(str, files)
 for f in files:
     with open('%s/%s.json'%(discovery_archive, f)) as fp:
         papers = json.load(fp)
-    print '<h2>%s</h2>'%('/'.join([f[4:6], f[6:8], f[:4]]))
-    print '<ul>'
+    if not plain_text:
+        print '<h2>%s</h2>'%('/'.join([f[4:6], f[6:8], f[:4]]))
+        print '<ul>'
     keys = papers.keys()
     keys.sort(reverse=True)
     for k in keys:
-        v = papers[k]
-        msg = u'<li><b>[%s]</b> <a href="http://arxiv.org/abs/%s">%s</a><br>'%(k, k, cgi.escape(v[0]))
-        msg += u'by %s</li>'%(u', '.join(map(lambda s: cgi.escape(s.partition(' <')[0]), v[1:])))
-        print msg.encode('utf-8')
-    print '</ul>'
+        if plain_text:
+            print k
+        else:
+            v = papers[k]
+            msg = u'<li><b>[%s]</b> <a href="http://arxiv.org/abs/%s">%s</a><br>'%(k, k, cgi.escape(v[0]))
+            msg += u'by %s</li>'%(u', '.join(map(lambda s: cgi.escape(s.partition(' <')[0]), v[1:])))
+            print msg.encode('utf-8')
+    if not plain_text:
+        print '</ul>'
 
-print """
+if not plain_text:
+    print """
   </div>
 </body>
 </html>
