@@ -34,9 +34,16 @@ if not plain_text:
      margin-left: auto;
      margin-right: auto;
      max-width: 900px;
-     padding: 0.5em 1em 3em 1em;
+     padding: 0.5em 1em 6em 1em;
    }
-  li {padding-bottom: 0.67em;}
+  .footer{
+     text-align: center;
+     font-size: small;
+     padding-top: 3em;
+  }
+  li {
+    padding-bottom: 0.67em;
+  }
   </style>
 </head>
 <body>
@@ -71,6 +78,7 @@ for f in files:
 
 if not plain_text:
     print """
+  <p class="footer">By <a href="http://web.stanford.edu/~yymao/">Yao-Yuan Mao</a> (2015). Part of the <a href="https://github.com/yymao/kipac-teabot">KIPAC TeaBot</a> project.</p>
   </div>
 </body>
 </html>
