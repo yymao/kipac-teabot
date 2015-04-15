@@ -20,8 +20,7 @@ from datetime import date, timedelta
 from secrets import discovery_archive
 
 if not plain_text:
-    print '''
-<!DOCTYPE html>
+    print '''<!DOCTYPE html>
 <html>
 <head>
   <title>New arXiv papers by KIPAC members</title>
