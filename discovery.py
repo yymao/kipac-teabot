@@ -31,9 +31,10 @@ with open(member_list_path, 'r') as f:
                 k = entry['key']
                 if k not in d or float(d[k]) < 1:
                     d[k] = '1'
-                    if k not in papers:
-                        papers[k] = [entry['title']]
-                    papers[k].append('%s <%s>'%(row['name'], row['email']))
+                    if int(row['active'] or 0):
+                        if k not in papers:
+                            papers[k] = [entry['title']]
+                        papers[k].append('%s <%s>'%(row['name'], row['email']))
 
 if papers:
     #save to archive

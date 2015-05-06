@@ -48,6 +48,7 @@ if not plain_text:
 <body>
   <div class="layout">
     <h1>New arXiv papers by KIPAC members</h1>
+    <p style="font-size: small;"><a href="https://docs.google.com/forms/d/1gC1HpHCjcTQ2wGIsEzzAkUXm7aG9AJCyN6cjVxD8sR8/viewform">Report missing or misattributed papers</a></p>
 '''
 
 backto = int((date.today()-timedelta(days=days)).strftime('%Y%m%d'))
