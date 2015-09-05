@@ -11,6 +11,7 @@ if 'REQUEST_METHOD' in os.environ:
     from email_server import email_server_dummy as email_server
 else:
     from email_server import email_server
+    #from email_server import email_server_dummy as email_server
 
 import sys
 import time
@@ -24,8 +25,8 @@ from Member import Member
 
 #get new arxiv entries
 arxiv = fetch_arxiv(max_results=200, \
-        search_query='cat:astro-ph*+AND+submittedDate:[%s+TO+%s]'%\
-        get_time_range(time.time()))
+        search_query='cat:astro-ph*+AND+submittedDate:[{0[0]}+TO+{0[1]}]'.format(\
+        get_time_range(time.time())))
 entries = arxiv.getentries()
 if len(entries) == 0:
     sys.exit(0)
@@ -70,13 +71,19 @@ for i, person in enumerate(people):
     del person['active']
     del person['tester']
 
-#helper function
+#helper functions
 def get_largest_indices(scores, limit, threshold=similarity_threshold):
     s = scores.argsort()
     for c, i in enumerate(reversed(s)):
         if scores[i] < threshold or c >= limit:
             break
         yield i
+
+def format_authors(authors, max_authors=6):
+    a = u', '.join(authors[:max_authors])
+    if len(authors) > max_authors:
+        a += u' et al.'
+    return cgi.escape(a)
 
 #start an email server
 email = email_server()
@@ -97,22 +104,20 @@ for i in get_largest_indices(median_scores, n_papers, 0):
     if names:
         any_paper = True
         entry = entries[i]
-        msg += u'<li>[%s] <a href="%s">%s</a> by %s et al. <br>'%(\
-                entry['key'], entry['id'], cgi.escape(entry['title']), \
-                cgi.escape(entry['first_author']))
-        msg += u'Try asking: %s</li>'%(', '.join(names))
+        msg += u'<li>[{0[key]}] <a href="{0[id]}">{1}</a> <br>by {2} <br>Try asking: {3} <br><br></li>'.format(\
+                entry, cgi.escape(entry['title']), format_authors(entry['authors']), ', '.join(names))
 msg += u'</ul>'
 msg += u'<p>Also check <a href="http://stanford.edu/~yymao/cgi-bin/kipac-teabot/arxiv-discovery">this page</a> for new arXiv papers authored by KIPAC members.</p>'
 if any_paper:
     email.send(from_me, 'KIPAC tealeaks <tealeaks@kipac.stanford.edu>', \
-            '[TeaBot] %s new papers on arXiv'%(time.strftime('%m/%d',time.localtime())), \
+            '[TeaBot] {0} new papers on arXiv'.format(time.strftime('%m/%d',time.localtime())), \
             msg + footer)
 
 #find interesting papers for individual members
 n_papers = 3
 for j in tester_idx:
     person = people[j]
-    msg = u'Hi %s, <br><br>'%(person['nickname'])
+    msg = u'Hi {0}, <br><br>'.format(person['nickname'])
     msg += u'TeaBot thinks you\'ll find the following paper(s) on arXiv today interesting: <br>'
     msg += u'<ul>'
     any_paper = False
@@ -123,13 +128,13 @@ for j in tester_idx:
             any_paper = True
         arxiv_id = entry['key']
         key = md5.md5(arxiv_id + person['arxivname'] + keypass).hexdigest()
-        url = 'https://web.stanford.edu/~yymao/cgi-bin/kipac-teabot/taste-tea.py?id=%s&name=%s&key=%s'%(arxiv_id, person['arxivname'], key)
-        msg += u'<li>[<a href="%s&abs=on">%s</a>] <b><a href="%s">%s</a></b> <br>by %s et al. <br><br>%s [<a href="%s">Read more</a>]<br><br><br></li>'%(\
-                url, arxiv_id, url, cgi.escape(entry['title']), cgi.escape(entry['first_author']), cgi.escape(entry['summary']), url)
+        url = 'https://web.stanford.edu/~yymao/cgi-bin/kipac-teabot/taste-tea.py?id={0}&name={1}&key={2}'.format(arxiv_id, person['arxivname'], key)
+        msg += u'<li>[<a href="{0}&abs=on">{1}</a>] <b><a href="{0}">{2}</a></b> <br>by {3} <br><br>{4} [<a href="{0}">Read more</a>]<br><br><br></li>'.format(\
+                url, arxiv_id, cgi.escape(entry['title']), format_authors(entry['authors']), cgi.escape(entry['summary']))
     if not any_paper:
         continue
     msg += u'</ul>'
-    email.send(from_me, '%s <%s>'%(person['name'], person['email']),
+    email.send(from_me, '{0[name]} <{0[email]}>'.format(person), \
             '[TeaBot] ' + best_title, msg + footer)
 
 #close the email server
