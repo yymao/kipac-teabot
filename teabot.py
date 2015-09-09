@@ -40,7 +40,9 @@ with open(member_list_path, 'r') as f:
     header = f.next().strip().split(',')
     for line in f:
         row = dict(zip(header, line.strip().split(',')))
-        row['model'] = Member(row['arxivname']).get_model()
+        m = Member(row['arxivname'])
+        row['model'] = m.get_model()
+        row['prefs'] = m.get_prefs()
         if row['model'] is not None:
             people.append(row)
 if len(people) == 0:
@@ -65,13 +67,9 @@ scores = np.array(scores).reshape(len(entries), len(people))
 del model
 del cw
 active_idx = []
-tester_idx = []
 for i, person in enumerate(people):
     if int(person['active'] or 0):
         active_idx.append(i)
-    person['tester'] = int(person['tester'] or 0)
-    if person['tester']:
-        tester_idx.append(i)
     del person['model']
     del person['active']
 
@@ -132,30 +130,29 @@ if any_paper:
 
 
 #find interesting papers for individual members
-n_papers = 3
-n_full_output = 50
-for j in tester_idx:
-    person = people[j]
-    do_full_output = (person['tester'] == 2)
+footer += u'<p>To unsubscribe or to update your preferences, <a href="https://web.stanford.edu/~yymao/cgi-bin/kipac-teabot/subscribe.html">click here</a>.</p>'
+for j, person in enumerate(people):
+    if not person['prefs']:
+        continue
     greetings = u'Hi {0}, <br><br>'.format(person['nickname'])
     msg = u'TeaBot thinks you\'ll find the following paper(s) on arXiv today interesting: <br>'
     msg += u'<ul>'
     any_paper = 0
-    ss = np.empty(len(scores), int) if do_full_output else None
-    for i in get_largest_indices(scores[:, j], n_papers, store_argsort=ss):
+    ss = np.empty(len(scores), int) if person['prefs']['nl'] > person['prefs']['nr'] else None
+    for i in get_largest_indices(scores[:, j], person['prefs']['nr'], store_argsort=ss):
         if not any_paper:
             best_title = entries[i]['title']
-        msg += format_entry(entries[i], person['arxivname'])
+        msg += format_entry(entries[i], person['arxivname'], person['prefs']['pa'])
         any_paper += 1
     msg += u'</ul>'
-    if do_full_output:
+    if person['prefs']['nl'] > person['prefs']['nr']:
         if not any_paper:
             any_paper += 1
             best_title = '{0} new papers on arXiv'.format(time.strftime('%m/%d',time.localtime()))
             msg = u''
         msg += u'The following papers are sorted by relevance:'
         msg += u'<ul>'
-        for i in ss[any_paper:n_full_output]:
+        for i in ss[any_paper:person['prefs']['nl']]:
             msg += format_entry(entries[i], person['arxivname'], False)
         msg += u'</ul>'
     if any_paper:

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Subscribe to KIPAC TeaBot</title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/pure/0.6.0/pure-min.css">
+  <style>
+  body{
+    padding: 0 1em 6em 1em;
+  }
+  .content{
+    max-width: 740px;
+    margin: 0 auto;
+  }
+  .section{
+    margin-bottom: 2.2em;
+  }
+  #email{
+    width: 25em;
+  }
+  #arxiv{
+    width: 100%;
+  }
+  .unsubscribe {
+    background: rgb(202, 60, 60); /* this is a maroon */
+    color: #FFF;
+    float: right;
+  }
+  .warning {
+    color: rgb(223, 117, 20);
+  }
+  .success {
+    color: rgb(28, 184, 65);
+  }
+  .footer{
+     text-align: center;
+     font-size: small;
+     padding-top: 3em;
+  }
+  </style>
+</head>
+
+<body>
+<div class="content">
+  <h2>Subscribe to KIPAC TeaBot</h2>
+  <form id="target" class="pure-form">
+    <fieldset>
+      <div class="section">
+        <legend>Your email address</legend>
+        <input id="email" name="email" type="email" required placeholder="Email">
+      </div>
+
+      <div class="section">
+        <legend>Up to how many papers would you like TeaBot to recommend you daily?</legend>
+        <select id="nr" name="nr">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3" selected>3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+        <p><input id="pa" name="pa" type="checkbox" checked> Include abstracts</p>
+      </div>
+
+      <div class="section">
+        <legend>For all other new astro-ph papers that are not being recommended, would you like TeaBot to sort them by relevence and include the list in the daily email? If yes, up to how long should this list be?</legend>
+        <select id="nl" name="nl">
+          <option value="0" selected>No</option>
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+          <option value="75">75</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+
+      <div class="section">
+        <legend>You can provide additional arXiv IDs to train TeaBot. Please separate the arXiv IDs by comma or space.</legend>
+        <input id="arxiv" name="arxiv" type="text" placeholder="arXiv IDs">
+      </div>
+
+
+      <div class="section">
+        <button id="submit" class="pure-button pure-button-primary">Subscribe / Update my preferences</button>
+        <button id="unsubscribe" class="pure-button unsubscribe">Unsubscribe me</button>
+      </div>
+
+      <div class="section" id="msg"></div>
+    </fieldset>
+  </form>
+</div>
+
+<div><p class="footer">By <a href="http://web.stanford.edu/~yymao/">Yao-Yuan Mao</a> (2015). Part of the <a href="https://github.com/yymao/kipac-teabot">KIPAC TeaBot</a> project.</p></div>
+
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script>
+var submit_enabled = true;
+
+var enable_submit = function(enable){
+  submit_enabled = enable;
+  if (enable){
+    $("button").removeClass("pure-button-disabled");
+  }
+  else{
+    $("button").addClass("pure-button-disabled");
+  }
+};
+
+var submit = function(data){
+  if (submit_enabled){
+    enable_submit(false);
+    $("#msg").removeClass("warning").addClass("success");
+    $("#msg").text("Processing... This may take a while...");
+    $.post("subscribe.py", data, function(ret){
+      $("#msg").removeClass("warning success").addClass(ret.success?"success":"warning");
+      $("#msg").text(ret.msg);
+      if (!ret.success) enable_submit(true);
+    });
+  }
+};
+
+$("#target").submit(function(event){event.preventDefault();});
+
+$("#submit").click(function(){submit($("#target").serialize());});
+
+$("#unsubscribe").click(function(){submit({email : $("#email").val() , unsubscribe : "on" });});
+
+</script>
+
+
+</body>
+</html>

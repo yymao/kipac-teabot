@@ -8,3 +8,8 @@ Satisfy Any
 Allow from all
 Satisfy Any
 </FilesMatch>
+<FilesMatch "subscribe(\.(html|py))?">
+Allow from all
+Satisfy Any
+</FilesMatch>
+

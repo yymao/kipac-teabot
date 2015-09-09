@@ -2,6 +2,7 @@ __all__ = ['Member']
 
 import os
 import anydbm
+import cPickle as pickle
 
 from secrets import db_path
 from fetch_arxiv import fetch_arxiv
@@ -24,9 +25,10 @@ class Member:
         self.arxiv_name = arxiv_name
         self._weights_path = self._get_path('weights')
         self._model_path = self._get_path('model')
+        self._prefs_path = self._get_path('prefs')
     
     def _get_path(self, t):
-        return '%s/%s/%s'%(db_path, t, self.arxiv_name)
+        return os.path.join(db_path, t, self.arxiv_name)
 
     def rename(self, new_arxiv_name):
         self.arxiv_name = new_arxiv_name
@@ -38,6 +40,9 @@ class Member:
         if os.path.isfile(self._model_path):
             os.rename(self._model_path, self._get_path('model'))
         self._model_path = self._get_path('model')
+        if os.path.isfile(self._prefs_path):
+            os.rename(self._prefs_path, self._get_path('prefs'))
+        self._prefs_path = self._get_path('prefs')
 
         arxiv = fetch_arxiv( \
                 search_query='cat:astro-ph*+AND+au:'+self.arxiv_name, \
@@ -97,3 +102,20 @@ class Member:
             model = self.get_model()
         return model
 
+    def has_prefs(self):
+        return os.path.isfile(self._prefs_path)
+
+    def get_prefs(self):
+        if not self.has_prefs():
+            return None
+        with open(self._prefs_path) as f:
+            d = pickle.load(f)
+        return d
+
+    def update_prefs(self, new_prefs):
+        with open(self._prefs_path, 'w') as f:
+            pickle.dump(new_prefs, f, pickle.HIGHEST_PROTOCOL)
+        return new_prefs
+
+    def remove_prefs(self):
+        os.remove(self._prefs_path)
