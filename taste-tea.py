@@ -3,10 +3,10 @@ import cgi
 score = 0.25
 
 form = cgi.FieldStorage()
-arxiv_id = str(form.getvalue('id'))
-name = form.getvalue('name')
-key = form.getvalue('key')
-abstract = form.getvalue('abs')
+arxiv_id = form.getfirst('id', '')
+name = form.getfirst('name', '')
+key = form.getfirst('key','')
+abstract = form.getfirst('abs','')
 
 if name and key:
     import md5
@@ -21,7 +21,7 @@ if arxiv_id:
     if abstract:
         url = 'http://arxiv.org/abs/' + arxiv_id
     else:
-        url = 'http://arxiv.org/pdf/%s.pdf'%(arxiv_id)
+        url = 'http://arxiv.org/pdf/{0}.pdf'.format(arxiv_id)
 else:
     url = 'http://arxiv.org/list/astro-ph/recent'
 

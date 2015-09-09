@@ -5,9 +5,9 @@ import cgi
 #cgitb.enable()
 form = cgi.FieldStorage()
 
-plain_text = (form.getvalue('fmt') == 'txt')
+plain_text = (form.getfirst('fmt', '') == 'txt')
 try:
-    days = int(form.getvalue('days'))
+    days = int(form.getfirst('days', ''))
 except (ValueError, TypeError):
     days = 30
 

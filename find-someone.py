@@ -2,7 +2,7 @@
 
 import cgi
 form = cgi.FieldStorage()
-arxiv_id = form.getvalue('id')
+arxiv_id = form.getfirst('id', '')
 print 'Content-Type: text/html'
 print
 
