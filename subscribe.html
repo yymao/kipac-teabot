@@ -47,12 +47,12 @@
   <form id="target" class="pure-form">
     <fieldset>
       <div class="section">
-        <legend>Your email address</legend>
+        <legend>Your email address (the one that receives TeaBot emails)</legend>
         <input id="email" name="email" type="email" required placeholder="Email">
       </div>
 
       <div class="section">
-        <legend>Up to how many papers would you like TeaBot to recommend you daily?</legend>
+        <legend>Up to how many papers would you like TeaBot to recommend you daily?  (TeaBot still sends at most one email per day.)</legend>
         <select id="nr" name="nr">
           <option value="1">1</option>
           <option value="2">2</option>
@@ -76,7 +76,7 @@
       </div>
 
       <div class="section">
-        <legend>You can provide additional arXiv IDs to train TeaBot. Please separate the arXiv IDs by comma or space.</legend>
+        <legend>You can provide additional arXiv IDs to train TeaBot. Please separate the arXiv IDs by comma or space. (You can leave it blank.)</legend>
         <input id="arxiv" name="arxiv" type="text" placeholder="arXiv IDs">
       </div>
 
@@ -91,7 +91,9 @@
   </form>
 </div>
 
-<div><p class="footer">By <a href="http://web.stanford.edu/~yymao/">Yao-Yuan Mao</a> (2015). Part of the <a href="https://github.com/yymao/kipac-teabot">KIPAC TeaBot</a> project.</p></div>
+<div>
+  <p class="footer">By <a href="http://web.stanford.edu/~yymao/">Yao-Yuan Mao</a> (2015). Part of the <a href="https://github.com/yymao/kipac-teabot">KIPAC TeaBot</a> project.</p>
+</div>
 
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script>
