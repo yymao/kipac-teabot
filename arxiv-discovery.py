@@ -78,7 +78,7 @@ for f in files:
 
 if not plain_text:
     print """
-  <p class="footer">By <a href="http://web.stanford.edu/~yymao/">Yao-Yuan Mao</a> (2015). Part of the <a href="https://github.com/yymao/kipac-teabot">KIPAC TeaBot</a> project.</p>
+  <p class="footer">By <a href="https://yymao.github.io">Yao-Yuan Mao</a> (2015). Part of the <a href="https://github.com/yymao/kipac-teabot">KIPAC TeaBot</a> project.</p>
   </div>
 </body>
 </html>

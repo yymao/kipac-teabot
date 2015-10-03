@@ -1,0 +1,72 @@
+<html>
+<head>
+  <title>What's your arXiv name?</title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/pure/0.6.0/pure-min.css">
+  <style>
+  div#main{
+    padding: 1em;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  label{
+    padding: 1em 5em 1em 0em;
+  }
+  ul{
+    list-style-type: none;
+    padding: 0;
+  }
+  li{
+    border: 2px solid #ccc;
+    padding: 0.5em;
+    margin: 0.5em;
+  }
+  li i{
+    font-size: small;
+  }
+  .footer{
+     text-align: center;
+     font-size: small;
+     padding-top: 3em;
+  }
+  </style>
+</head>
+<body>
+  <div id="main">
+    <form class="pure-form">
+      <fieldset>
+        <legend>Enter your full name</legend>
+        <input id="first" name="first" placeholder="First (and middle) names" required>
+        <input id="last" name="last" placeholder="Last name" required>
+        <button type="submit" class="pure-button pure-button-primary">Go</button>
+        <p>
+        <label for="fi"><input id="fi" name="fi" type="checkbox"> Use initials for first and middle names.</label>
+        </p>
+      </fieldset>
+    </form>
+    <div id='res'>
+    </div>
+    <p class="footer">By <a href="https://yymao.github.io">Yao-Yuan Mao</a> (2015). Part of the <a href="https://github.com/yymao/kipac-teabot">KIPAC TeaBot</a> project.</p>
+  </div>
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+<script type="text/javascript">
+$("form").submit(function(event){
+  event.preventDefault();
+  if ($("#first").val()!='' && $("#last").val()!=''){
+    $("#res").html("<h3>Getting results, please wait ...</h3>");
+    $.post('arxiv-name.py', $(this).serialize(), function(data){
+      $("#res").html(data);
+    });
+  }
+  else{
+    $("#res").html("<h3>Please enter your first name and last name.</h3>");
+  }
+});
+$("input").change(function(){
+  $("form").submit()
+});
+</script>
+</body>
+</html>

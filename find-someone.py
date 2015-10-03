@@ -3,15 +3,19 @@
 import cgi
 form = cgi.FieldStorage()
 arxiv_id = form.getfirst('id', '')
+password = form.getfirst('pass', '')
 print 'Content-Type: text/html'
 print
 
 from fetch_arxiv import fetch_arxiv
 from topic_model import topic_model, collection_weight, similarity_threshold
-from secrets import member_list_path, collection_weight_path
+from secrets import member_list_path, collection_weight_path, find_someone_pass
 from Member import Member
 
 try:
+    if password != find_someone_pass:
+        raise ValueError('Password does not match.')
+
     if not arxiv_id:
         raise ValueError('no arXiv ID provided.')
 
