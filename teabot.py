@@ -23,7 +23,7 @@ people = get_kipac_members()
 if not entries or not people:
     sys.exit(0)
 
-scores, keywords= calc_scores(entries, people, 3)
+scores, keywords= calc_scores(entries, people, 7)
 active_idx = get_active_indices_and_clean_up(people)
 
 from_me = 'KIPAC TeaBot <teabot@kipac.stanford.edu>'

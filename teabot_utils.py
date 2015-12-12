@@ -87,13 +87,29 @@ def format_authors(authors, max_authors=6):
     return cgi.escape(a)
 
 
+def format_keywords(keywords, max_keywords=3, bold=False):
+    if not keywords:
+        return u''
+    keywords = list(keywords)
+    final_keywords = []
+    n = len(keywords)
+    for __ in xrange(n):
+        k = keywords.pop(0)
+        if not any(k in kk for kk in keywords):
+            final_keywords.append(k)
+            if len(final_keywords) >= max_keywords:
+                break
+            keywords.append(k)
+    return u'<i>Keywords: {1}{0}{2}</i> <br>'.format(cgi.escape(u', '.join(final_keywords)), '<b>' if bold else '', '</b>' if bold else '')
+
+
 def format_entry(entry, arxivname, print_abstract=True, score=None, keywords=None):
     arxiv_id = entry['key']
     key = md5.md5(arxiv_id + arxivname + keypass).hexdigest()
     url = 'https://web.stanford.edu/~yymao/cgi-bin/kipac-teabot/taste-tea.py?id={0}&name={1}&key={2}'.format(arxiv_id, arxivname, key)
     abstract = u'{0} [<a href="{1}">Read more</a>] <br><br><br>'.format(cgi.escape(entry['summary']), url) if print_abstract else u''
     score = u' (score = {:.3g})'.format(score) if score is not None else u''
-    keywords = u'<i>Keywords: {1}{0}{2}</i> <br>'.format(cgi.escape(u', '.join(keywords)), '<b>' if print_abstract else '', '</b>' if print_abstract else '') if keywords else u''
+    keywords = format_keywords(keywords, bold=print_abstract)
     return u'<li>[<a href="{0}&abs=on">{1}</a>] <b><a href="{0}">{2}</a></b>{5} <br>by {3} <br>{6}<br>{4}</li>'.format(\
                 url, arxiv_id, cgi.escape(entry['title']), format_authors(entry['authors']), abstract, score, keywords)
 
