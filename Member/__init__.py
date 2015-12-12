@@ -83,10 +83,10 @@ class Member:
             model = None
         return model
 
-    def update_model(self):
-        if not os.path.isfile(self._model_path) or \
-                os.path.getmtime(self._weights_path) \
-                > os.path.getmtime(self._model_path):
+    def update_model(self, force_update=False):
+        if not os.path.isfile(self._model_path) \
+                or os.path.getmtime(self._weights_path) > os.path.getmtime(self._model_path) \
+                or force_update:
             with self.get_weights_db() as d:
                 ids = list(d.iterkeys())
                 if not len(ids):
