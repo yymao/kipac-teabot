@@ -1,4 +1,4 @@
-__all__ = ['fetch_arxiv', 'get_time_range']
+__all__ = ['fetch_arxiv', 'get_time_range', 'is_holiday']
 import re
 import time
 from urllib import urlopen
@@ -88,3 +88,7 @@ def get_time_range(t, fwd_days=1):
     then = _last_workday(now-_oneday*fwd_days)
     return _print_deadline(then), _print_deadline(now)
 
+def is_holiday(t_st=None):
+    if t_st is None:
+        t_st = time.localtime()
+    return (_print_date(t_st) in _holidays)

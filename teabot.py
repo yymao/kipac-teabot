@@ -1,27 +1,25 @@
 #!/usr/bin/env python
 
 import os
-import cgi
+import sys
+from teabot_utils import *
 
 if 'REQUEST_METHOD' in os.environ:
-    import cgitb
-    cgitb.enable()
+    #import cgitb
+    #cgitb.enable()
     print 'Content-Type: text/html'
     print
     from email_server import email_server_dummy as email_server
+elif is_holiday():
+    sys.exit(0)
 else:
     from email_server import email_server
-
-import sys
-import time
-
-from teabot_utils import *
 
 entries = get_arxiv_entries()
 people = get_kipac_members()
 
 if not entries or not people:
-    sys.exit(0)
+    sys.exit(1000)
 
 scores, keywords= calc_scores(entries, people, 7)
 active_idx = get_active_indices_and_clean_up(people)
@@ -34,7 +32,7 @@ email = email_server()
 
 #find papers that members are interested
 to = 'KIPAC tealeaks <tealeaks@kipac.stanford.edu>'
-title = '{0} new papers on arXiv'.format(time.strftime('%m/%d',time.localtime()))
+title = '{0} new papers on arXiv'.format(format_today())
 msg = prepare_email_to_organizers(entries, people, scores, active_idx)
 if msg:
     email.send(from_me, to, '[TeaBot] ' + title, msg + footer)

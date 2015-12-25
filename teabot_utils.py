@@ -1,6 +1,6 @@
 __all__ = ['get_arxiv_entries', 'get_kipac_members', 'calc_scores', 
            'get_active_indices_and_clean_up', 'prepare_email_to_organizers', 
-           'iter_prepare_email_to_individuals']
+           'iter_prepare_email_to_individuals', 'format_today', 'is_holiday']
 
 import time
 import md5
@@ -8,7 +8,7 @@ import cgi
 from collections import defaultdict
 import numpy as np
 
-from fetch_arxiv import fetch_arxiv, get_time_range
+from fetch_arxiv import fetch_arxiv, get_time_range, is_holiday
 from topic_model import topic_model, collection_weight, similarity_threshold
 from secrets import keypass, member_list_path, collection_weight_path
 from Member import Member
@@ -78,6 +78,10 @@ def get_largest_indices(scores, limit, threshold=similarity_threshold, store_arg
         if scores[i] < threshold or c >= limit:
             break
         yield i
+
+
+def format_today():
+    return time.strftime('%m/%d', time.localtime())
 
 
 def format_authors(authors, max_authors=6):
