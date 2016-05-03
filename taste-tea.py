@@ -7,6 +7,7 @@ arxiv_id = form.getfirst('id', '')
 name = form.getfirst('name', '')
 key = form.getfirst('key','')
 abstract = form.getfirst('abs','')
+mendeley = form.getfirst('mendeley','')
 
 if name and key:
     import md5
@@ -18,7 +19,9 @@ if name and key:
                 d[arxiv_id] = str(score)
 
 if arxiv_id:
-    if abstract:
+    if mendeley:
+        url = 'https://www.mendeley.com/import/?url=http%3A%2F%2Farxiv.org%2Fabs%2F' + arxiv_id
+    elif abstract:
         url = 'http://arxiv.org/abs/' + arxiv_id
     else:
         url = 'http://arxiv.org/pdf/{0}.pdf'.format(arxiv_id)

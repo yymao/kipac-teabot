@@ -114,7 +114,7 @@ def format_entry(entry, arxivname, print_abstract=True, score=None, keywords=Non
     abstract = u'{0} [<a href="{1}">Read more</a>] <br><br><br>'.format(cgi.escape(entry['summary']), url) if print_abstract else u''
     score = u' (score = {:.3g})'.format(score) if score is not None else u''
     keywords = format_keywords(keywords, bold=print_abstract)
-    export_links = '[<a href="https://www.mendeley.com/import/?url=http%3A%2F%2Farxiv.org%2Fabs%2F{0}">Save to Mendeley</a>] <br>'.format(arxiv_id) if export else ''
+    export_links = u'[<a href="{0}&mendeley=on">Save to Mendeley</a>] <br>'.format(url) if export else ''
     return u'<li>[<a href="{0}&abs=on">{1}</a>] <b><a href="{0}">{2}</a></b>{5} <br>by {3} <br>{6}{7}<br>{4}</li>'.format(\
                 url, arxiv_id, cgi.escape(entry['title']), format_authors(entry['authors']), abstract, score, keywords, export_links)
 
