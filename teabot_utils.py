@@ -107,15 +107,16 @@ def format_keywords(keywords, max_keywords=3, bold=False):
     return u'<i>Keywords: {1}{0}{2}</i> <br>'.format(cgi.escape(u', '.join(final_keywords)), '<b>' if bold else '', '</b>' if bold else '')
 
 
-def format_entry(entry, arxivname, print_abstract=True, score=None, keywords=None):
+def format_entry(entry, arxivname, print_abstract=True, score=None, keywords=None, export=False):
     arxiv_id = entry['key']
     key = md5.md5(arxiv_id + arxivname + keypass).hexdigest()
     url = 'https://web.stanford.edu/~yymao/cgi-bin/kipac-teabot/taste-tea.py?id={0}&name={1}&key={2}'.format(arxiv_id, arxivname, key)
     abstract = u'{0} [<a href="{1}">Read more</a>] <br><br><br>'.format(cgi.escape(entry['summary']), url) if print_abstract else u''
     score = u' (score = {:.3g})'.format(score) if score is not None else u''
     keywords = format_keywords(keywords, bold=print_abstract)
-    return u'<li>[<a href="{0}&abs=on">{1}</a>] <b><a href="{0}">{2}</a></b>{5} <br>by {3} <br>{6}<br>{4}</li>'.format(\
-                url, arxiv_id, cgi.escape(entry['title']), format_authors(entry['authors']), abstract, score, keywords)
+    export_links = '[<a href="https://www.mendeley.com/import/?url=http%3A%2F%2Farxiv.org%2Fabs%2F{0}">Save to Mendeley</a>] <br>'.format(arxiv_id) if export else ''
+    return u'<li>[<a href="{0}&abs=on">{1}</a>] <b><a href="{0}">{2}</a></b>{5} <br>by {3} <br>{6}{7}<br>{4}</li>'.format(\
+                url, arxiv_id, cgi.escape(entry['title']), format_authors(entry['authors']), abstract, score, keywords, export_links)
 
 
 def prepare_email_to_organizers(entries, people, scores, active_idx, n_papers=8, n_people=4):
@@ -148,7 +149,7 @@ def iter_prepare_email_to_individuals(entries, people, scores, keywords=None):
         for i in get_largest_indices(scores[:, j], person['prefs']['nr'], store_argsort=ss):
             if not any_paper:
                 best_title = entries[i]['title']
-            msg += format_entry(entries[i], person['arxivname'], person['prefs']['pa'], keywords=keywords[j][i])
+            msg += format_entry(entries[i], person['arxivname'], person['prefs']['pa'], keywords=keywords[j][i], export=person['prefs'].get('export', False))
             any_paper += 1
         msg += u'</ul>'
         if person['prefs']['nl'] > person['prefs']['nr']:
@@ -159,7 +160,7 @@ def iter_prepare_email_to_individuals(entries, people, scores, keywords=None):
             msg += u'The following papers are sorted by relevance:'
             msg += u'<ul>'
             for i in ss[any_paper:person['prefs']['nl']]:
-                msg += format_entry(entries[i], person['arxivname'], False, keywords=keywords[j][i])
+                msg += format_entry(entries[i], person['arxivname'], False, keywords=keywords[j][i], export=person['prefs'].get('export', False))
             msg += u'</ul>'
         if any_paper:
             yield '{0[name]} <{0[email]}>'.format(person), best_title, greetings + msg

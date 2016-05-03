@@ -116,7 +116,8 @@ if form.getfirst('unsubscribe'):
 else:
     d['prefs'] = dict(nr = check_select(form.getfirst('nr'), (1,2,3,4,5)),
                       nl = check_select(form.getfirst('nl'), (0,10,25,50,75,100)),
-                      pa = bool(form.getfirst('pa')))
+                      pa = bool(form.getfirst('pa')),
+                      export = bool(form.getfirst('export')))
     if any(v is None for v in d['prefs'].itervalues()):
         exit_and_output("Hmmm... this is weird.")
     d['add_arxiv'] = form.getfirst('arxiv', '')
