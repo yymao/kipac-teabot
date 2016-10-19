@@ -22,11 +22,11 @@ if arxiv_id:
     if mendeley:
         url = 'https://www.mendeley.com/import/?url=http%3A%2F%2Farxiv.org%2Fabs%2F' + arxiv_id
     elif abstract:
-        url = 'http://arxiv.org/abs/' + arxiv_id
+        url = 'https://arxiv.org/abs/' + arxiv_id
     else:
-        url = 'http://arxiv.org/pdf/{0}.pdf'.format(arxiv_id)
+        url = 'https://arxiv.org/pdf/{0}.pdf'.format(arxiv_id)
 else:
-    url = 'http://arxiv.org/list/astro-ph/recent'
+    url = 'https://arxiv.org/list/astro-ph/recent'
 
 print 'Location:', url
 print
