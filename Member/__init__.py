@@ -3,6 +3,7 @@ __all__ = ['Member']
 import os
 import anydbm
 import cPickle as pickle
+from itertools import izip
 
 from secrets import db_path
 from fetch_arxiv import fetch_arxiv
@@ -93,9 +94,10 @@ class Member:
                     return None
                 arxiv = fetch_arxiv(id_list=','.join(ids), max_results=len(ids))
                 model = topic_model()
-                for entry in arxiv.iterentries():
+                for key, entry in izip(ids, arxiv.iterentries()):
                     model.add_document(entry['title']+'.'+entry['summary'], \
-                            weight=float(d[str(entry['key'])]))
+                            weight=float(d[key]))
+                print _k
             with open(self._model_path, 'wb') as f:
                 f.write(model.dumps())
         else:
