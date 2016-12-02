@@ -97,7 +97,6 @@ class Member:
                 for key, entry in izip(ids, arxiv.iterentries()):
                     model.add_document(entry['title']+'.'+entry['summary'], \
                             weight=float(d[key]))
-                print _k
             with open(self._model_path, 'wb') as f:
                 f.write(model.dumps())
         else:
