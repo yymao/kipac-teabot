@@ -59,11 +59,12 @@ class fetch_arxiv:
 
 
 
-#announcement time:        03:00 UTC (02:00 if DST)
-#submission deadline time: 21:00 UTC (20:00 if DST)
+#announcement time:                  03:00 UTC (02:00 if DST)
+#submission deadline time ( < 2017): 21:00 UTC (20:00 if DST)
+#submission deadline time (>= 2017): 19:00 UTC (18:00 if DST)
 
 _oneday = 24*60*60
-_holidays = {'20151126','20151225','20151229','20160101', '20161124', '20161226', '20161228'}
+_holidays = {'20151126','20151225','20151229','20160101','20161124','20161226','20161228'}
 
 def _parse_time(t):
     return t, time.gmtime(t), time.localtime(t).tm_isdst
@@ -73,7 +74,8 @@ def _print_date(t_st):
 
 def _print_deadline(t):
     now, now_st, dst = _parse_time(t)
-    return '%s%d00'%(_print_date(now_st), 21-dst)
+    deadline_hour = 21 if now_st.tm_year < 2017 else 19
+    return '%s%d00'%(_print_date(now_st), deadline_hour-dst)
 
 def _last_workday(t):
     now, now_st, dst = _parse_time(t)
