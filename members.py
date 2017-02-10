@@ -33,8 +33,7 @@ if args.command=='pull':
             row = dict(zip(header, line.strip().split(',')))
             m = Member(row['arxivname'])
             if not m.has_weights_db():
-                print row['arxivname'], 'is a new member, please add', row['arxivname']
-                continue
+                m.create_weights_db()
             fo.write(line)
 
 elif args.command=='add':
