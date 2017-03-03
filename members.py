@@ -1,29 +1,38 @@
 #!/usr/bin/env python
+import os
 
-from argparse import ArgumentParser
-parser = ArgumentParser(prog='members.py')
-subparsers = parser.add_subparsers(dest='command')
+if 'REQUEST_METHOD' in os.environ:
+    #import cgitb
+    #cgitb.enable()
+    print 'Content-Type: text/plain'
+    print
+    args = 'WEB_REQUEST'
 
-parser_rename = subparsers.add_parser('rename', help='change the arxiv name of a member')
-parser_pull = subparsers.add_parser('pull', help='pull the member list from Google Sheets')
-parser_add = subparsers.add_parser('add', help='add a new member')
-parser_print = subparsers.add_parser('print', help='print the arxiv weights for a member')
-parser_testers = subparsers.add_parser('subscribers', help='print all subscribers')
+else:
+    from argparse import ArgumentParser
+    parser = ArgumentParser(prog='members.py')
+    subparsers = parser.add_subparsers(dest='command')
 
-parser_add.add_argument('arxiv_name')
+    parser_rename = subparsers.add_parser('rename', help='change the arxiv name of a member')
+    parser_pull = subparsers.add_parser('pull', help='pull the member list from Google Sheets')
+    parser_add = subparsers.add_parser('add', help='add a new member')
+    parser_print = subparsers.add_parser('print', help='print the arxiv weights for a member')
+    parser_testers = subparsers.add_parser('subscribers', help='print all subscribers')
 
-parser_print.add_argument('arxiv_name')
+    parser_add.add_argument('arxiv_name')
 
-parser_rename.add_argument('arxiv_name')
-parser_rename.add_argument('new_arxiv_name')
+    parser_print.add_argument('arxiv_name')
 
-args = parser.parse_args()
+    parser_rename.add_argument('arxiv_name')
+    parser_rename.add_argument('new_arxiv_name')
+
+    args = parser.parse_args()
 
 from urllib import urlopen
 from Member import Member
 from secrets import member_list_url, member_list_path
 
-if args.command=='pull':
+if str(args)=='WEB_REQUEST' or args.command=='pull':
     with open(member_list_path, 'w') as fo:
         f = urlopen(member_list_url)
         line = f.next()
@@ -33,8 +42,10 @@ if args.command=='pull':
             row = dict(zip(header, line.strip().split(',')))
             m = Member(row['arxivname'])
             if not m.has_weights_db():
+                print 'adding', row['arxivname']
                 m.create_weights_db()
             fo.write(line)
+    print 'Done!'
 
 elif args.command=='add':
     m = Member(args.arxiv_name)
