@@ -115,7 +115,7 @@ if form.getfirst('unsubscribe'):
     d['action'] = 'unsubscribe from TeaBot'
 else:
     d['prefs'] = dict(nr = check_select(form.getfirst('nr'), (1,2,3,4,5)),
-                      nl = check_select(form.getfirst('nl'), (0,10,25,50,75,100)),
+                      nl = check_select(form.getfirst('nl'), (0,10,25,50,75)),
                       pa = bool(form.getfirst('pa')),
                       export = bool(form.getfirst('export')))
     if any(v is None for v in d['prefs'].itervalues()):
