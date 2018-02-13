@@ -139,7 +139,7 @@ def prepare_email_to_organizers(entries, people, scores, active_idx, n_papers=8,
 
 def iter_prepare_email_to_individuals(entries, people, scores, keywords=None):
     for j, person in enumerate(people):
-        if not person['prefs']:
+        if not person['prefs'] or not person['email']:
             continue
         greetings = u'Hi {0}, <br><br>'.format(person['nickname'])
         msg = u'TeaBot thinks you\'ll find the following paper(s) on arXiv today interesting: <br>'
