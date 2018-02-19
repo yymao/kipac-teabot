@@ -28,10 +28,11 @@ def get_kipac_members():
         for line in f:
             row = dict(zip(header, line.strip().split(',')))
             m = Member(row['arxivname'])
-            row['model'] = m.get_model()
-            row['prefs'] = m.get_prefs()
-            if row['model'] is not None:
-                people.append(row)
+            if row['email'] and (m.has_prefs() or int(row['is_kipac'] or 0)):
+                row['model'] = m.get_model()
+                row['prefs'] = m.get_prefs()
+                if row['model'] is not None:
+                    people.append(row)
     return people
 
 
