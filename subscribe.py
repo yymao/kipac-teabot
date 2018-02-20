@@ -123,8 +123,11 @@ else:
     d['add_arxiv'] = form.getfirst('arxiv', '')
     d['action'] = 'update your TeaBot preferences' if has_prefs else 'subscribe to TeaBot'
 
-with open(prefs_path, 'w') as f:
-    pickle.dump(d, f, pickle.HIGHEST_PROTOCOL)
+try:
+    with open(prefs_path, 'w') as f:
+        pickle.dump(d, f, pickle.HIGHEST_PROTOCOL)
+except IOError:
+    exit_and_output('Something went wrong. Please fill out your request again.')
 
 url_base = 'https://web.stanford.edu/~yymao/cgi-bin/kipac-teabot/subscribe.py'
 
