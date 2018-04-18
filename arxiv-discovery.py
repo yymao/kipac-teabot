@@ -94,6 +94,7 @@ for f in files:
     if not items:
         print '<h{3}><a name="{0}{1}{2}">{0}/{1}/{2}</a></h{3}>'.format(f[4:6], f[6:8], f[:4], date_header_level)
         print '<ul>'
+
     for k in keys:
         v = papers[k]
         print u'<li><b>[<a name="{0}" href="http://arxiv.org/abs/{0}">{0}</a>]</b> <a href="http://arxiv.org/pdf/{0}.pdf">{1}</a><br> <i>by {2}</i></li>'.format( \
@@ -101,11 +102,8 @@ for f in files:
                 u', '.join(map(lambda s: s.partition(' <')[0], v)) \
                 ).encode('utf-8')
         printed_items += 1
-        if printed_items >= items:
+        if items is not None and printed_items >= items:
             break
-    
-    if items is not None and printed_items >= items:
-        break
 
     if not items:
         print '</ul>'
