@@ -44,7 +44,12 @@ class fetch_arxiv:
                 break
         else:
             raise IOError('cannot connect to arXiv')
-        self.root = ET.parse(f).getroot()
+        try:
+            self.root = ET.parse(f).getroot()
+        except ET.ParseError as e:
+            print 'Something wrong with URL: {}'.format(url)
+            raise e
+
         first_entry = self.root.find(_prefix+'entry')
         if first_entry is not None and \
                 first_entry.findtext(_prefix+'title') == 'Error':
