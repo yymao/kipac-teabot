@@ -34,7 +34,7 @@ with open(member_list_path, 'r') as f:
                     if int(row['active'] or 0):
                         if k not in papers:
                             papers[k] = [entry['title']]
-                        papers[k].append('%s <%s>'%(row['name'], row['email']))
+                        papers[k].append('%s <%s>'%(row['name'].decode('utf-8'), row['email']))
 
 if papers:
     #save to archive
