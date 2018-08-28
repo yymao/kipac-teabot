@@ -3,6 +3,7 @@
 import os
 import sys
 from teabot_utils import *
+from secrets import tealeaks_team
 
 if 'REQUEST_METHOD' in os.environ:
     #import cgitb
@@ -31,11 +32,10 @@ footer += u'<a href="https://github.com/yymao/kipac-teabot/issues?state=open">Cr
 email = email_server()
 
 #find papers that members are interested
-to = 'KIPAC tealeaks <tealeaks@kipac.stanford.edu>'
 title = '{0} new papers on arXiv'.format(format_today())
 msg = prepare_email_to_organizers(entries, people, scores, active_idx)
 if msg:
-    email.send(from_me, to, '[TeaBot] ' + title, msg + footer)
+    email.send(from_me, tealeaks_team, '[TeaBot] ' + title, msg + footer)
 
 #find interesting papers for individual members
 footer += u'<p>To unsubscribe or to update your preferences, <a href="https://web.stanford.edu/~yymao/cgi-bin/kipac-teabot/subscribe.html">click here</a>.</p>'
