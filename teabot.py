@@ -2,16 +2,16 @@
 
 import os
 import sys
-import time
 from teabot_utils import *
 from secrets import tealeaks_team
 
 if 'REQUEST_METHOD' in os.environ:
+    print 'Content-Type: text/html'
+    print
+    import time
     import cgi
     import cgitb
     cgitb.enable()
-    print 'Content-Type: text/html'
-    print
     form = cgi.FieldStorage()
     if form.getfirst("send") == time.strftime("%Y%m%d"):
         from email_server import email_server
