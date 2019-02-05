@@ -34,11 +34,11 @@ class fetch_arxiv:
         """
         url = _url_base + '&'.join([k+'='+str(v) \
                 for k, v in keywords.iteritems()])
-        for i in range(5):
+        for i in range(10):
             try:
                 f = urlopen(url)
             except IOError:
-                time.sleep(2)
+                time.sleep(i+1)
                 continue
             else:
                 break

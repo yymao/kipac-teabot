@@ -2,25 +2,33 @@
 
 import os
 import sys
+import time
 from teabot_utils import *
 from secrets import tealeaks_team
 
 if 'REQUEST_METHOD' in os.environ:
-    #import cgitb
-    #cgitb.enable()
+    import cgi
+    import cgitb
+    cgitb.enable()
     print 'Content-Type: text/html'
     print
-    from email_server import email_server_dummy as email_server
+    form = cgi.FieldStorage()
+    if form.getfirst("send") == time.strftime("%Y%m%d"):
+        from email_server import email_server
+    else:
+        from email_server import email_server_dummy as email_server
 elif is_holiday():
     sys.exit(0)
 else:
     from email_server import email_server
 
 entries = get_arxiv_entries()
-people = get_kipac_members()
+if not entries:
+    raise RuntimeError('Found no arXiv entry. Abort!')
 
-if not entries or not people:
-    sys.exit(1000)
+people = get_kipac_members()
+if not people:
+    raise RuntimeError('Found no member. Abort!')
 
 scores, keywords= calc_scores(entries, people, 7)
 active_idx = get_active_indices_and_clean_up(people)
@@ -43,4 +51,7 @@ for to, title, msg in iter_prepare_email_to_individuals(entries, people, scores,
     email.send(from_me, to, '[TeaBot] ' + title, msg + footer)
 
 email.close()
+
+if 'REQUEST_METHOD' in os.environ:
+    print '<div>Done!</div>'
 

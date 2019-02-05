@@ -66,6 +66,6 @@ elif args.command=='subscribers':
         header = f.next().strip().split(',')
         for line in f:
             row = dict(zip(header, line.strip().split(',')))
-            if Member(row['arxivname']).has_prefs():
+            if row['email'] and Member(row['arxivname']).has_prefs():
                 print row['name'], '<%s>,'%(row['email'])
 
