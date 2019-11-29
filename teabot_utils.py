@@ -2,6 +2,7 @@ __all__ = ['get_arxiv_entries', 'get_kipac_members', 'calc_scores',
            'get_active_indices_and_clean_up', 'prepare_email_to_organizers', 
            'iter_prepare_email_to_individuals', 'format_today', 'is_holiday']
 
+import io
 import time
 import md5
 import cgi
@@ -23,7 +24,7 @@ def get_arxiv_entries():
 
 def get_kipac_members():
     people = []
-    with open(member_list_path, 'r') as f:
+    with io.open(member_list_path, 'r', encoding='utf-8') as f:
         header = f.next().strip().split(',')
         for line in f:
             row = dict(zip(header, line.strip().split(',')))
