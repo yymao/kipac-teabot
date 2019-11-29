@@ -69,7 +69,7 @@ class fetch_arxiv:
 #submission deadline time (>= 2017): 19:00 UTC (18:00 if DST)
 
 _oneday = 24*60*60
-_holidays = {'20151126','20151225','20151229','20160101','20161124','20161226','20161228'}
+_holidays = {'20191128', '20191225', '20191226', '20191230', '20200101'}
 
 def _parse_time(t):
     return t, time.gmtime(t), time.localtime(t).tm_isdst
