@@ -4,6 +4,3 @@ Require user yymao
 Allow from all
 Satisfy Any
 </FilesMatch>
-<Files members.py>
-Require user yymao jderose
-</Files>

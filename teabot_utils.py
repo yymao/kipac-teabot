@@ -1,5 +1,5 @@
-__all__ = ['get_arxiv_entries', 'get_kipac_members', 'calc_scores', 
-           'get_active_indices_and_clean_up', 'prepare_email_to_organizers', 
+__all__ = ['get_arxiv_entries', 'get_kipac_members', 'calc_scores',
+           'get_active_indices_and_clean_up', 'prepare_email_to_organizers',
            'iter_prepare_email_to_individuals', 'format_today', 'is_holiday']
 
 import io
@@ -9,18 +9,20 @@ import cgi
 from collections import defaultdict
 import numpy as np
 
-from fetch_arxiv import fetch_arxiv, get_time_range, is_holiday
+from fetch_arxiv import fetch_arxiv, get_time_range, is_holiday, fetch_arxiv_rss
 from topic_model import topic_model, collection_weight, similarity_threshold
 from secrets import keypass, member_list_path, collection_weight_path
 from Member import Member
 
 
 def get_arxiv_entries():
-    arxiv = fetch_arxiv(max_results=200, \
-            search_query='cat:astro-ph*+AND+submittedDate:[{0[0]}+TO+{0[1]}]'.format(\
-            get_time_range(time.time())))
-    return arxiv.getentries()
-
+    entries = fetch_arxiv_rss().entries
+    if not entries:
+        entries = fetch_arxiv(
+            max_results=200,
+            search_query='cat:astro-ph*+AND+submittedDate:[{0[0]}+TO+{0[1]}]'.format(get_time_range(time.time())),
+        ).entries
+    return entries
 
 def get_kipac_members():
     people = []
@@ -99,7 +101,7 @@ def format_keywords(keywords, max_keywords=3, bold=False):
     keywords = list(keywords)
     final_keywords = []
     n = len(keywords)
-    for __ in xrange(n):
+    for _ in range(n):
         k = keywords.pop(0)
         if not any(k in kk for kk in keywords):
             final_keywords.append(k)
@@ -166,4 +168,3 @@ def iter_prepare_email_to_individuals(entries, people, scores, keywords=None):
             msg += u'</ul>'
         if any_paper:
             yield '{0[name]} <{0[email]}>'.format(person), best_title, greetings + msg
-
