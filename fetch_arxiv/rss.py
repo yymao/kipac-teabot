@@ -74,6 +74,7 @@ class fetch_arxiv_rss:
                 if _current_key and entry["key"] < _current_key:
                     break
                 self._entries.append(entry)
+                _current_key = entry["key"]
         return list(self._entries)
 
     def iterentries(self):
