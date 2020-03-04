@@ -38,7 +38,7 @@ class arxiv_entry:
             elif name == "first_author":
                 output = self.authors[0]
             elif name == "authors_text":
-                ", ".join(self.authors)
+                output = ", ".join(self.authors)
             elif name in ("key", "id"):
                 output = self.entry.findtext("rss:link", "", _ns).partition("arxiv.org/abs/")[-1].strip()
             elif name == "title":

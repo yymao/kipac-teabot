@@ -32,7 +32,7 @@ def get_members():
 def convert_arxiv_name_to_re(arxiv_name):
     names = arxiv_name.split("_")
     j = r"[\w'.]*[\s\-]+"
-    return re.compile(j.join((j.join(names[1:]), names[0])), re.I + re.U)
+    return re.compile(j.join((j.join(names[1:]), names[0])) + r"\b", re.I + re.U)
 
 
 arxiv = fetch_arxiv_rss()
