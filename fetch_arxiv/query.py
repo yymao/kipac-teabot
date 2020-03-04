@@ -20,18 +20,29 @@ _arxiv_re = re.compile(arxiv_id_pattern)
 class arxiv_entry:
     def __init__(self, entry):
         self.entry = entry
+        self._attr_cache = dict()
 
-    def __getitem__(self, key):
-        if key == "authors":
-            return [
-                author.findtext("atom:name", "", _ns)
-                for author in self.entry.iterfind("atom:author", _ns)
-            ]
-        if key == "first_author":
-            return self.entry.find("atom:author", _ns).findtext("atom:name", "", _ns)
-        if key in ("key", "id"):
-            return _arxiv_re.search(self.entry.findtext("atom:id", "", _ns)).group()
-        return self.entry.findtext("atom:{}".format(key), "", _ns)
+    def __getattr__(self, name):
+        if name not in self._attr_cache:
+
+            if name == "authors":
+                output = [
+                    author.findtext("atom:name", "", _ns)
+                    for author in self.entry.iterfind("atom:author", _ns)
+                ]
+            elif name == "first_author":
+                output = self.entry.find("atom:author", _ns).findtext("atom:name", "", _ns)
+            elif name in ("key", "id"):
+                output = _arxiv_re.search(self.entry.findtext("atom:id", "", _ns)).group()
+            else:
+                output = self.entry.findtext("atom:{}".format(name), None, _ns)
+
+            if output is not None:
+                self._attr_cache[name] = output
+
+        return self._attr_cache[name]
+
+    __getitem__ = __getattr__
 
 
 class fetch_arxiv:

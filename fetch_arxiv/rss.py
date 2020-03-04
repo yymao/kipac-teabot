@@ -26,21 +26,32 @@ _ns = {"rss": "http://purl.org/rss/1.0/", "el": "http://purl.org/dc/elements/1.1
 class arxiv_entry:
     def __init__(self, entry):
         self.entry = entry
+        self._attr_cache = dict()
 
-    def __getitem__(self, key):
-        if key == "authors":
-            authors_raw = self.entry.findtext("el:creator", "", _ns)
-            return [unescape(a).strip() for a in re.findall(r"<a href=.+?>(.+?)</a>", authors_raw)]
-        if key == "first_author":
-            return self["authors"][0]
-        if key in ("key", "id"):
-            return self.entry.findtext("rss:link", "", _ns).partition("arxiv.org/abs/")[-1]
-        if key == "title":
-            return self.entry.findtext("rss:title", "", _ns).partition(". (arXiv:")[0]
-        if key == "summary":
-            summary_raw = self.entry.findtext("rss:description", "", _ns)
-            return re.sub(r"\s+", " ", re.sub(r"<[^<>]*>", "", summary_raw)).strip()
-        return self.entry.findtext("rss:{}".format(key), "", _ns)
+    def __getattr__(self, name):
+        if name not in self._attr_cache:
+            if name == "raw_authors":
+                output = self.entry.findtext("el:creator", "", _ns).strip()
+            elif name == "authors":
+                output = [unescape(a).strip() for a in re.findall(r"<a href=.+?>(.+?)</a>", self.raw_authors)]
+            elif name == "first_author":
+                output = self.authors[0]
+            elif name in ("key", "id"):
+                output = self.entry.findtext("rss:link", "", _ns).partition("arxiv.org/abs/")[-1].strip()
+            elif name == "title":
+                output = self.entry.findtext("rss:title", "", _ns).partition(". (arXiv:")[0].strip()
+            elif name == "summary":
+                summary_raw = self.entry.findtext("rss:description", "", _ns)
+                output = re.sub(r"\s+", " ", re.sub(r"<[^<>]*>", "", summary_raw)).strip()
+            else:
+                output = self.entry.findtext("rss:{}".format(name), None, _ns)
+
+            if output is not None:
+                self._attr_cache[name] = output
+
+        return self._attr_cache[name]
+
+    __getitem__ = __getattr__
 
 
 class fetch_arxiv_rss:
