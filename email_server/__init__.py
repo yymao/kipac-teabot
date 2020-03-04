@@ -1,9 +1,11 @@
-__all__ = ['email_server', 'email_server_dummy']
-
+from __future__ import print_function
 import cgi
 from smtplib import SMTP
 from email.mime.text import MIMEText
 import email.charset
+
+__all__ = ['email_server', 'email_server_dummy']
+
 email.charset.add_charset('utf-8', email.charset.QP, email.charset.QP)
 
 #steal from numpy
@@ -43,7 +45,6 @@ class email_server_dummy:
     def send(self, From, To, subject, message):
         if _is_string_like(To):
             To = [To]
-        print '<h2>', cgi.escape(', '.join(To)), '</h2>'
-        print message.encode('ascii', 'xmlcharrefreplace')
-        print '<br/><hr/>'
-
+        print('<h2>', cgi.escape(', '.join(To)), '</h2>')
+        print(message.encode('ascii', 'xmlcharrefreplace'))
+        print('<br/><hr/>')
