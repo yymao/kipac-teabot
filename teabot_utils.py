@@ -16,13 +16,15 @@ from Member import Member
 
 
 def get_arxiv_entries():
-    entries = fetch_arxiv_rss().entries
-    if not entries:
-        entries = fetch_arxiv(
-            max_results=200,
-            search_query='cat:astro-ph*+AND+submittedDate:[{0[0]}+TO+{0[1]}]'.format(get_time_range(time.time())),
-        ).entries
-    return entries
+    arxiv = fetch_arxiv_rss()
+    if arxiv.date == time.strftime("%Y%m%d") and arxiv.entries:
+        return arxiv.entries
+
+    arxiv = fetch_arxiv(
+        max_results=200,
+        search_query='cat:astro-ph*+AND+submittedDate:[{0[0]}+TO+{0[1]}]'.format(get_time_range(time.time())),
+    )
+    return arxiv.entries
 
 def get_kipac_members():
     people = []

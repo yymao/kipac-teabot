@@ -1,6 +1,7 @@
 from __future__ import print_function, absolute_import
 import re
 import time
+import datetime
 import xml.etree.ElementTree as ET
 
 try:
@@ -20,7 +21,7 @@ else:
 __all__ = ["fetch_arxiv_rss"]
 
 _url_base = "http://export.arxiv.org/rss/astro-ph"
-_ns = {"rss": "http://purl.org/rss/1.0/", "el": "http://purl.org/dc/elements/1.1/"}
+_ns = {"rss": "http://purl.org/rss/1.0/", "el": "http://purl.org/dc/elements/1.1/", "dc":"http://purl.org/dc/elements/1.1/"}
 
 
 class arxiv_entry:
@@ -36,6 +37,8 @@ class arxiv_entry:
                 output = [unescape(a).strip() for a in re.findall(r"<a href=.+?>(.+?)</a>", self.raw_authors)]
             elif name == "first_author":
                 output = self.authors[0]
+            elif name == "authors_text":
+                ", ".join(self.authors)
             elif name in ("key", "id"):
                 output = self.entry.findtext("rss:link", "", _ns).partition("arxiv.org/abs/")[-1].strip()
             elif name == "title":
@@ -74,6 +77,11 @@ class fetch_arxiv_rss:
             raise e
 
         self._entries = None
+
+    @property
+    def date(self):
+        date_str = self.root.findtext("rss:channel/dc:date", "", _ns).partition('T')[0]
+        return (datetime.date(*map(int, date_str.split("-"))) + datetime.timedelta(days=1)).strftime("%Y%m%d")
 
     @property
     def entries(self):
