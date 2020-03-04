@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 import re
 import time
 import xml.etree.ElementTree as ET
@@ -30,7 +30,7 @@ class arxiv_entry:
     def __getitem__(self, key):
         if key == "authors":
             authors_raw = self.entry.findtext("el:creator", "", _ns)
-            return [unescape(a.replace("</a>", "").strip()) for a in re.sub(r"<a[^<>]+>", "", authors_raw).split("</a>,")]
+            return [unescape(a).strip() for a in re.findall(r"<a href=.+?>(.+?)</a>", authors_raw)]
         if key == "first_author":
             return self["authors"][0]
         if key in ("key", "id"):

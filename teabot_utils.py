@@ -1,6 +1,6 @@
 __all__ = ['get_arxiv_entries', 'get_kipac_members', 'calc_scores',
            'get_active_indices_and_clean_up', 'prepare_email_to_organizers',
-           'iter_prepare_email_to_individuals', 'format_today', 'is_holiday']
+           'iter_prepare_email_to_individuals', 'format_today']
 
 import io
 import time
@@ -9,7 +9,7 @@ import cgi
 from collections import defaultdict
 import numpy as np
 
-from fetch_arxiv import fetch_arxiv, get_time_range, is_holiday, fetch_arxiv_rss
+from fetch_arxiv import fetch_arxiv, get_time_range, fetch_arxiv_rss
 from topic_model import topic_model, collection_weight, similarity_threshold
 from secrets import keypass, member_list_path, collection_weight_path
 from Member import Member

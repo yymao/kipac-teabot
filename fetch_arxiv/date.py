@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import time
 
 __all__ = ["get_time_range", "is_holiday"]
