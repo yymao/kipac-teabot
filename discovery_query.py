@@ -2,7 +2,6 @@
 
 from __future__ import print_function
 import os
-import io
 import sys
 import time
 import json
@@ -12,12 +11,16 @@ from email_server import email_server
 from secrets import member_list_path, discovery_team, discovery_archive
 from Member import Member
 
+write_to_disk = True
+
 if "REQUEST_METHOD" in os.environ:
     print("Content-Type: text/html")
     print()
     import cgitb
     cgitb.enable()
     from email_server import email_server_dummy as email_server
+    if not cgi.FieldStorage().form.getfirst("write"):
+        write_to_disk = False
 
 papers = {}
 
@@ -51,8 +54,15 @@ with open(member_list_path, "r") as f:
 if papers:
     # save to archive
     fname = "%s/%s.json" % (discovery_archive, time.strftime("%Y%m%d"))
-    with open(fname, "w") as f:
-        json.dump(papers, f)
+    if os.path.isfile(fname):
+        with open(fname) as f:
+            current = json.load(f)
+        papers = current.update(papers)
+    if write_to_disk:
+        with open(fname, "w") as f:
+            json.dump(papers, f)
+    else:
+        print(papers)
 
     # prepare email
     email = email_server()

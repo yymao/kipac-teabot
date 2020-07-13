@@ -11,11 +11,16 @@ from email_server import email_server
 from secrets import member_list_path, discovery_team, discovery_archive
 from Member import Member
 
+write_to_disk = True
+
 if "REQUEST_METHOD" in os.environ:
     print("Content-Type: text/html")
     print()
     import cgitb
     cgitb.enable()
+    from email_server import email_server_dummy as email_server
+    if not cgi.FieldStorage().form.getfirst("write"):
+        write_to_disk = False
 
 
 def get_members():
@@ -31,8 +36,13 @@ def get_members():
 
 def convert_arxiv_name_to_re(arxiv_name):
     names = arxiv_name.split("_")
-    j = r"[\w'.]*[\s\-]+"
-    return re.compile(j.join((j.join(names[1:]), names[0])) + r"\b", re.I + re.U)
+    pattern = []
+    for name in names[1:]:
+        pattern.append(name + r"[a-z'.]+[- ]+")
+    pattern.append(r"[a-z'.]+ +")
+    pattern.append(names[0])
+    pattern.append(r"\b")
+    return re.compile("".join(pattern), re.I + re.U)
 
 
 arxiv = fetch_arxiv_rss()
@@ -77,8 +87,15 @@ for person in people:
 
 if papers:
     # save to archive
-    with open(archive_fname, "w") as f:
-        json.dump(papers, f)
+    if os.path.isfile(archive_fname):
+        with open(archive_fname) as f:
+            current = json.load(f)
+        papers = current.update(papers)
+    if write_to_disk:
+        with open(archive_fname, "w") as f:
+            json.dump(papers, f)
+    else:
+        print(papers)
 
 if has_new_paper:
     # prepare email
