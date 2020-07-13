@@ -19,7 +19,7 @@ if "REQUEST_METHOD" in os.environ:
     import cgitb
     cgitb.enable()
     from email_server import email_server_dummy as email_server
-    if not cgi.FieldStorage().form.getfirst("write"):
+    if not cgi.FieldStorage().getfirst("write"):
         write_to_disk = False
 
 
@@ -36,7 +36,7 @@ def get_members():
 
 def convert_arxiv_name_to_re(arxiv_name):
     names = arxiv_name.split("_")
-    pattern = []
+    pattern = [r"\b"]
     for name in names[1:]:
         pattern.append(name + r"[a-z'.]+[- ]+")
     pattern.append(r"[a-z'.]+ +")
@@ -85,17 +85,12 @@ for person in people:
             if person_str not in papers[k]:
                 papers[k].append(person_str)
 
-if papers:
+if papers and write_to_disk:
     # save to archive
-    if os.path.isfile(archive_fname):
-        with open(archive_fname) as f:
-            current = json.load(f)
-        papers = current.update(papers)
-    if write_to_disk:
-        with open(archive_fname, "w") as f:
-            json.dump(papers, f)
-    else:
-        print(papers)
+    with open(archive_fname, "w") as f:
+        json.dump(papers, f)
+else:
+    print(papers)
 
 if has_new_paper:
     # prepare email
