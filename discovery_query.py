@@ -17,7 +17,7 @@ if "REQUEST_METHOD" in os.environ:
     print()
     import cgitb
     cgitb.enable()
-
+    from email_server import email_server_dummy as email_server
 
 papers = {}
 
