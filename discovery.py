@@ -39,7 +39,7 @@ def convert_arxiv_name_to_re(arxiv_name):
     pattern = [r"\b"]
     for name in names[1:]:
         pattern.append(name + r"[a-z'.]+[- ]+")
-    pattern.append(r"[a-z'.]+ +")
+    pattern.append(r"[a-z'.]+[- ]+")
     pattern.append(names[0])
     pattern.append(r"\b")
     return re.compile("".join(pattern), re.I + re.U)
