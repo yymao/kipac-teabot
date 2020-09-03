@@ -8,10 +8,14 @@ if 'REQUEST_METHOD' not in os.environ:
 import cgi
 #import cgitb
 #cgitb.enable()
+import re
 import cPickle as pickle
+
 from secrets import member_list_path, update_prefs_path
-from fetch_arxiv import _arxiv_re
+from fetch_arxiv import arxiv_id_pattern
 from Member import Member
+
+_arxiv_re = re.compile(arxiv_id_pattern)
 
 form = cgi.FieldStorage()
 
