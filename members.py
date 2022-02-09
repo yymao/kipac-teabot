@@ -36,6 +36,8 @@ if str(args)=='WEB_REQUEST' or args.command=='pull':
     with open(member_list_path, 'w') as fo:
         f = urlopen(member_list_url)
         line = f.next()
+        if not line.startswith('name,nickname,arxivname,email'):
+            raise ValueError('Invalid member database')
         fo.write(line)
         header = line.strip().split(',')
         for line in f:
