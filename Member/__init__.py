@@ -48,7 +48,7 @@ class Member:
         arxiv = fetch_arxiv( \
                 search_query='cat:astro-ph*+AND+au:'+self.arxiv_name, \
                 max_results=50, sortBy='submittedDate', sortOrder='descending')
-        with self.get_weights_db('w') as d:
+        with self.get_weights_db('w' if os.path.isfile(self._weights_path) else 'c') as d:
             for entry in arxiv.iterentries():
                 k = entry['key']
                 if k not in d or float(d[k]) < 1:
