@@ -97,7 +97,7 @@ for f in files:
 
     for k in keys:
         v = papers[k]
-        print u'<li><b>[<a name="{0}" href="http://arxiv.org/abs/{0}">{0}</a>]</b> <a href="http://arxiv.org/pdf/{0}.pdf">{1}</a><br> <i>by {2}</i></li>'.format( \
+        print u'<li><b>[<a name="{0}" href="http://arxiv.org/abs/{0}">{0}</a>]</b> <a href="http://arxiv.org/pdf/{0}.pdf">{1}</a><br> <i>Authors include {2}</i></li>'.format( \
                 k, cgi.escape(v.pop(0)), \
                 u', '.join(map(lambda s: s.partition(' <')[0], v)) \
                 ).encode('utf-8')
