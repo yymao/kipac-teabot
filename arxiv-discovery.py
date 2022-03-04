@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import cgi
-#import cgitb
-#cgitb.enable()
+import cgitb
+cgitb.enable()
 
 form = cgi.FieldStorage()
 
@@ -48,7 +48,7 @@ if not (print_id_only or print_body_only):
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="robots" content="noindex, nofollow">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
   .layout {
      margin-left: auto;
@@ -63,6 +63,7 @@ if not (print_id_only or print_body_only):
   }
   li {
     padding-bottom: 0.67em;
+    line-height: 1.39em;
   }
   </style>
 </head>
@@ -72,10 +73,17 @@ if not (print_id_only or print_body_only):
     <p style="font-size: small;"><a href="https://docs.google.com/forms/d/1gC1HpHCjcTQ2wGIsEzzAkUXm7aG9AJCyN6cjVxD8sR8/viewform">Report missing or misattributed papers</a></p>
 '''
 
-backto = int((date.today()-timedelta(days=days)).strftime('%Y%m%d'))
-files = os.listdir(discovery_archive)
-files = filter(lambda s: s.endswith('.json') and int(s[:-5]) > backto, files)
-files.sort(reverse=True)
+def _fn2date(fn):
+    return int(fn[:-5])
+
+files = sorted((f for f in os.listdir(discovery_archive) if f.endswith('.json')), key=_fn2date, reverse=True)
+try:
+    min_backto = files[5]
+except IndexError:
+    min_backto = files[-1]
+min_backto = _fn2date(min_backto)
+min_backto = min(int((date.today()-timedelta(days=days)).strftime('%Y%m%d')), min_backto)
+files = [f for f in files if _fn2date(f) >= min_backto]
 
 printed_items = 0
 if items:
@@ -113,7 +121,7 @@ if items:
 
 if not (print_id_only or print_body_only):
     print """
-  <p class="footer">By <a href="https://yymao.github.io">Yao-Yuan Mao</a> (2015-2020). Part of the <a href="https://github.com/yymao/kipac-teabot">KIPAC TeaBot</a> project.</p>
+  <p class="footer">By <a href="https://yymao.github.io">Yao-Yuan Mao</a> (2015-2022). Part of the <a href="https://github.com/yymao/kipac-teabot">KIPAC TeaBot</a> project.</p>
   </div>
 </body>
 </html>
