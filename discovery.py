@@ -36,16 +36,16 @@ def get_members():
 
 def convert_arxiv_name_to_re(arxiv_name):
     names = arxiv_name.split("_")
-    pattern = [r"(?: |^)"]
+    pattern = [r"(?:^|, +)(?:[a-z][ \.]+)*"]
     for name in names[1:]:
         if len(name) == 1:
-            pattern.append(name + r"(?:[a-z']*|\.)")
+            pattern.append(name + r"(?:\.|[a-z']*)")
         elif len(name) > 1:
             pattern.append(name)
-        pattern.append(r"[- ]+")
-    pattern.append(r"(?:[a-z']+\.?[ -]+)*")
+        pattern.append(r"(?:-| +)")
+    pattern.append(r"(?:[a-z](?:\.|[a-z']*)(?:-| +))*")
     pattern.append(names[0])
-    pattern.append(r"(?:,|$)")
+    pattern.append(r"(?=,|$)")
     return re.compile("".join(pattern), re.I + re.U)
 
 
