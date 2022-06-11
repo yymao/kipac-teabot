@@ -116,7 +116,7 @@ def format_keywords(keywords, max_keywords=3, bold=False):
 def format_entry(entry, arxivname, print_abstract=True, score=None, keywords=None, export=False):
     arxiv_id = entry['key']
     key = md5.md5(arxiv_id + arxivname + keypass).hexdigest()
-    url = 'https://web.stanford.edu/~yymao/cgi-bin/kipac-teabot/taste-tea.py?id={0}&name={1}&key={2}'.format(arxiv_id, arxivname, key)
+    url = 'https://web.stanford.edu/group/kipac_teabot/cgi-bin/teabot/taste-tea.py?id={0}&name={1}&key={2}'.format(arxiv_id, arxivname, key)
     abstract = u'{0} [<a href="{1}">Read more</a>] <br><br><br>'.format(cgi.escape(entry['summary']), url) if print_abstract else u''
     score = u' (score = {:.3g})'.format(score) if score is not None else u''
     keywords = format_keywords(keywords, bold=print_abstract)
@@ -139,7 +139,7 @@ def prepare_email_to_organizers(entries, people, scores, active_idx, n_papers=8,
             msg += u'<li>[{0[key]}] <a href="{0[id]}">{1}</a> <br>by {2} <br>Try asking: {3} <br><br></li>'.format(\
                     entry, cgi.escape(entry['title']), format_authors(entry['authors']), ', '.join(names))
     msg += u'</ul>'
-    msg += u'<p>Also check <a href="http://stanford.edu/~yymao/cgi-bin/kipac-teabot/arxiv-discovery">this page</a> for new arXiv papers authored by KIPAC members.</p>'
+    msg += u'<p>Also check <a href="http://stanford.edu/group/kipac_teabot/cgi-bin/teabot/arxiv-discovery">this page</a> for new arXiv papers authored by KIPAC members.</p>'
     return msg if any_paper else u''
 
 

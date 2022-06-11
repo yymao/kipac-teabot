@@ -47,7 +47,7 @@ if msg:
     email.send(from_me, tealeaks_team, '[TeaBot] ' + title, msg + footer)
 
 #find interesting papers for individual members
-footer += u'<p>To unsubscribe or to update your preferences, <a href="https://web.stanford.edu/~yymao/cgi-bin/kipac-teabot/subscribe.html">click here</a>.</p>'
+footer += u'<p>To unsubscribe or to update your preferences, <a href="https://web.stanford.edu/group/kipac_teabot/cgi-bin/teabot/subscribe.html">click here</a>.</p>'
 for to, title, msg in iter_prepare_email_to_individuals(entries, people, scores, keywords):
     email.send(from_me, to, '[TeaBot] ' + title, msg + footer)
 

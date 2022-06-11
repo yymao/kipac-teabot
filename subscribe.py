@@ -133,7 +133,7 @@ try:
 except IOError:
     exit_and_output('Something went wrong. Please fill out your request again.')
 
-url_base = 'https://web.stanford.edu/~yymao/cgi-bin/kipac-teabot/subscribe.py'
+url_base = 'https://web.stanford.edu/group/kipac_teabot/cgi-bin/teabot/subscribe.py'
 
 msg = """Hi {0[nickname]},<br><br>
 Please confirm your request to {1[action]} by <a href="{2}?k={1[key]}&n={0[arxivname]}">clicking here</a>, or visit the following URL: <br><br>{2}?k={1[key]}&n={0[arxivname]}<br><br><br><br>
