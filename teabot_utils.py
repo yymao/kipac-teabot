@@ -136,7 +136,7 @@ def prepare_email_to_organizers(entries, people, scores, active_idx, n_papers=8,
         if names:
             any_paper = True
             entry = entries[i]
-            msg += u'<li>[{0[key]}] <a href="{0[id]}">{1}</a> <br>by {2} <br>Try asking: {3} <br><br></li>'.format(\
+            msg += u'<li>[<a href="https://arxiv.org/abs/{0[key]}">{0[key]}</a>] <a href="https://arxiv.org/pdf/{0[key]}.pdf">{1}</a> <br>by {2} <br>Try asking: {3} <br><br></li>'.format(\
                     entry, cgi.escape(entry['title']), format_authors(entry['authors']), ', '.join(names))
     msg += u'</ul>'
     msg += u'<p>Also check <a href="http://stanford.edu/group/kipac_teabot/cgi-bin/teabot/arxiv-discovery">this page</a> for new arXiv papers authored by KIPAC members.</p>'
