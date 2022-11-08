@@ -88,11 +88,11 @@ with open(member_list_path, 'r') as f:
         if email == person['email']:
             break
     else:
-        exit_and_output("The email address is not in the database. If you think this is a mistake, please contant Yao-Yuan Mao.")
+        exit_and_output("This email address is not yet in the KIPAC TeaBot database. If you are affiliated with KIPAC, please visit https://forms.gle/ccPRkm9V6DnsVNDz8 and fill it out first.")
 
 prefs_path = os.path.join(update_prefs_path, person['arxivname'])
 if os.path.isfile(prefs_path) and time.time() - os.path.getmtime(prefs_path) < 86400.0:
-    exit_and_output("You have a previous request that have not yet been confirmed or canceled. If you think this is a mistake, please contant Yao-Yuan Mao.")
+    exit_and_output("You have a previous request that have not yet been confirmed or canceled. If you think this is a mistake, please contant Yao-Yuan Mao at yymao.astro@gmail.com.")
 
 
 # start to process request

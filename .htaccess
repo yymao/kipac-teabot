@@ -1,5 +1,5 @@
 AuthType WebAuth
-Require user yymao
+Require user yymao bhadnott
 <FilesMatch "(index|taste-tea|arxiv-discovery|arxiv-name|find-someone|subscribe)(\.(html|py))?">
 Allow from all
 Satisfy Any
