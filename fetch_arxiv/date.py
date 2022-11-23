@@ -8,7 +8,7 @@ __all__ = ["get_time_range", "is_holiday"]
 # submission deadline time (>= 2017): 19:00 UTC (18:00 if DST)
 
 _oneday = 24 * 60 * 60
-_holidays = {"20211125", "20211226", "20211228", "20211230"}
+_holidays = {"20221124", "20221227", "20221229"}
 
 
 def _parse_time(t):
