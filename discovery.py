@@ -8,7 +8,7 @@ import json
 import cgi
 from fetch_arxiv import fetch_arxiv_rss
 from email_server import email_server
-from secrets import member_list_path, discovery_team, discovery_archive
+from secrets import member_list_path, discovery_team, discovery_archive, sent_from
 from Member import Member
 
 write_to_disk = True
@@ -112,7 +112,7 @@ if has_new_paper:
         msg += u"<br><p>This message is automatically generated and sent by KIPAC TeaBot. <br>"
         msg += u'<a href="https://github.com/yymao/kipac-teabot/issues?state=open">Create an issue</a> if you have any suggestions/questions.</p>'
         email.send(
-            "KIPAC TeaBot <teabot@kipac.stanford.edu>",
+            sent_from,
             discovery_team,
             "[TeaBot][Discovery] %s" % cgi.escape(v[0]),
             msg,

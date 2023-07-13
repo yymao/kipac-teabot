@@ -11,7 +11,7 @@ import cgi
 import re
 import cPickle as pickle
 
-from secrets import member_list_path, update_prefs_path
+from secrets import member_list_path, update_prefs_path, sent_from
 from fetch_arxiv import arxiv_id_pattern
 from Member import Member
 
@@ -145,7 +145,7 @@ msg += '<p>This message is automatically generated and sent by KIPAC TeaBot. <br
 msg += '<a href="https://github.com/yymao/kipac-teabot/issues?state=open">Create an issue</a> if you have any suggestions/questions.</p>'
 
 email = email_server()
-email.send('KIPAC TeaBot <teabot@kipac.stanford.edu>', 
+email.send(sent_from, 
            '{0[name]} <{0[email]}>'.format(person),
            '[TeaBot] {0}'.format(d['action']), 
            msg)
