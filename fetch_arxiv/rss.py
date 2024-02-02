@@ -21,7 +21,7 @@ else:
 __all__ = ["fetch_arxiv_rss"]
 
 _url_base = "http://export.arxiv.org/rss/astro-ph"
-_ns = {"rss": "http://purl.org/rss/1.0/", "el": "http://purl.org/dc/elements/1.1/", "dc":"http://purl.org/dc/elements/1.1/"}
+_ns = {"arxiv": "http://arxiv.org/schemas/atom", "dc":"http://purl.org/dc/elements/1.1/"}
 
 
 class arxiv_entry:
@@ -31,21 +31,21 @@ class arxiv_entry:
 
     def __getattr__(self, name):
         if name not in self._attr_cache:
-            if name == "raw_authors":
-                output = self.entry.findtext("el:creator", "", _ns).strip()
-            elif name == "authors":
-                output = [unescape(a).strip() for a in re.findall(r"<a href=.+?>(.+?)</a>", self.raw_authors)]
+            if name == "authors":
+                output = [unescape(a.text).strip() for a in self.entry.find("dc:creator", _ns).findall("a")]
             elif name == "first_author":
                 output = self.authors[0]
             elif name == "authors_text":
                 output = ", ".join(self.authors)
             elif name in ("key", "id"):
-                output = self.entry.findtext("rss:link", "", _ns).partition("arxiv.org/abs/")[-1].strip()
+                output = self.entry.findtext("link").partition("arxiv.org/abs/")[-1].strip()
             elif name == "title":
-                output = self.entry.findtext("rss:title", "", _ns).partition(". (arXiv:")[0].strip()
+                output = self.entry.findtext("title").partition(". (arXiv:")[0].strip()
             elif name == "summary":
-                summary_raw = self.entry.findtext("rss:description", "", _ns)
+                summary_raw = self.entry.findtext("description", "", _ns)
                 output = re.sub(r"\s+", " ", re.sub(r"<[^<>]*>", "", summary_raw)).strip()
+            elif name == "is_new":
+                output = self.entry.findtext("arxiv:announce_type", "", _ns).strip() in ["new", "cross"]
             else:
                 output = self.entry.findtext("rss:{}".format(name), None, _ns)
 
@@ -60,7 +60,7 @@ class arxiv_entry:
 class fetch_arxiv_rss:
     def __init__(self, **kwargs):
         url = _url_base
-        for i in range(10):
+        for i in range(20):
             try:
                 f = urlopen(url)
             except IOError:
@@ -71,7 +71,7 @@ class fetch_arxiv_rss:
         else:
             raise IOError("cannot connect to arXiv")
         try:
-            self.root = ET.parse(f).getroot()
+            self.root = ET.parse(f).getroot().find("channel")
         except ET.ParseError as e:
             print("Something wrong with URL: {}".format(url))
             raise e
@@ -80,20 +80,18 @@ class fetch_arxiv_rss:
 
     @property
     def date(self):
-        date_str = self.root.findtext("rss:channel/dc:date", "", _ns).partition('T')[0]
-        return (datetime.date(*map(int, date_str.split("-"))) + datetime.timedelta(days=1)).strftime("%Y%m%d")
+        date_str = self.root.findtext("pubDate")
+        date_str = " ".join(date_str.split()[1:4])
+        return datetime.datetime.strptime("02 Feb 2024", "%d %b %Y").strftime("%Y%m%d")
 
     @property
     def entries(self):
         if self._entries is None:
             self._entries = []
-            _current_key = None
-            for entry_raw in self.root.findall("rss:item", _ns):
+            for entry_raw in self.root.findall("item"):
                 entry = arxiv_entry(entry_raw)
-                if _current_key and entry["key"] < _current_key:
-                    break
-                self._entries.append(entry)
-                _current_key = entry["key"]
+                if entry.is_new:
+                    self._entries.append(entry)
         return list(self._entries)
 
     def iterentries(self):
