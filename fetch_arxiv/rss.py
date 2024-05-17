@@ -11,6 +11,13 @@ _url_base = "https://rss.arxiv.org/rss/astro-ph"
 _ns = {"arxiv": "http://arxiv.org/schemas/atom", "dc":"http://purl.org/dc/elements/1.1/"}
 
 
+def remove_parenthetical(s):
+    n = 1
+    while n:
+        s, n = re.subn(r"\([^()]*?\)", "", s)
+    return s
+
+
 class arxiv_entry:
     def __init__(self, entry):
         self.entry = entry
@@ -19,7 +26,7 @@ class arxiv_entry:
     def __getattr__(self, name):
         if name not in self._attr_cache:
             if name == "authors":
-                output = [a.strip() for a in re.sub(r"\(.*?\)", "", self.entry.findtext("dc:creator", "", _ns)).split(",")]
+                output = [a.strip() for a in remove_parenthetical(self.entry.findtext("dc:creator", "", _ns)).split(",")]
             elif name == "first_author":
                 output = self.authors[0]
             elif name == "authors_text":
