@@ -1,13 +1,7 @@
 from __future__ import print_function, absolute_import
 import re
-import time
 import datetime
 import xml.etree.ElementTree as ET
-
-try:
-    from urllib import urlopen
-except ImportError:
-    from urllib.request import urlopen
 
 try:
     from HTMLParser import HTMLParser
@@ -17,6 +11,8 @@ else:
     _html_parser = HTMLParser()
     def unescape(s):
         return _html_parser.unescape(s)
+
+from .utils import load_url
 
 __all__ = ["fetch_arxiv_rss"]
 
@@ -59,21 +55,11 @@ class arxiv_entry:
 
 class fetch_arxiv_rss:
     def __init__(self, **kwargs):
-        url = _url_base
-        for i in range(20):
-            try:
-                f = urlopen(url)
-            except IOError:
-                time.sleep(i + 1)
-                continue
-            else:
-                break
-        else:
-            raise IOError("cannot connect to arXiv")
+        xml = load_url(_url_base)
         try:
-            self.root = ET.parse(f).getroot().find("channel")
+            self.root = ET.fromstring(xml).find("channel")
         except ET.ParseError as e:
-            print("Something wrong with URL: {}".format(url))
+            print("Something wrong with URL: {}".format(_url_base))
             raise e
 
         self._entries = None

@@ -1,14 +1,8 @@
 from __future__ import print_function, absolute_import
 import re
-import time
 import xml.etree.ElementTree as ET
 
-try:
-    from urllib import urlopen
-except ImportError:
-    from urllib.request import urlopen
-
-from .utils import arxiv_id_pattern
+from .utils import arxiv_id_pattern, load_url
 
 __all__ = ["fetch_arxiv"]
 
@@ -58,18 +52,9 @@ class fetch_arxiv:
             self.url = _url_base + "&".join([k + "=" + str(v) for k, v in kwargs.items()])
         else:
             self.url = url
-        for i in range(10):
-            try:
-                f = urlopen(self.url)
-            except IOError:
-                time.sleep(i + 1)
-                continue
-            else:
-                break
-        else:
-            raise IOError("cannot connect to arXiv")
+        xml = load_url(self.url)
         try:
-            self.root = ET.parse(f).getroot()
+            self.root = ET.fromstring(xml)
         except ET.ParseError as e:
             print("Something wrong with URL: {}".format(url))
             raise e

@@ -28,13 +28,13 @@ else:
 
     args = parser.parse_args()
 
-from urllib import urlopen
+from urllib2 import urlopen
 from Member import Member
 from secrets import member_list_url, member_list_path
 
 if str(args)=='WEB_REQUEST' or args.command=='pull':
     with open(member_list_path, 'w') as fo:
-        f = urlopen(member_list_url)
+        f = urlopen(member_list_url, timeout=30)
         line = f.next()
         if not line.startswith('name,nickname,arxivname,email'):
             raise ValueError('Invalid member database')
