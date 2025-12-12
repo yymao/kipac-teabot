@@ -8,9 +8,10 @@ form = cgi.FieldStorage()
 
 print_id_only = form.getfirst('fmt', '').lower() == 'txt' or form.getfirst('idOnly')
 print_body_only = bool(form.getfirst('bodyOnly'))
+use_kipac_css = bool(form.getfirst('kipacStyle'))
 
 print 'Content-Type:', 'text/plain' if print_id_only else 'text/html'
-if print_body_only:
+if print_body_only or use_kipac_css:
     print 'Access-Control-Allow-Origin: *'
 print
 
@@ -49,7 +50,11 @@ if not (print_id_only or print_body_only):
   <meta name="robots" content="noindex, nofollow">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <style>
+  '''
+    if use_kipac_css:
+        print '<link rel="stylesheet" href="https://s3df.slac.stanford.edu/data/kipac/teabot/website-layout.css" crossorigin="anonymous" referrerpolicy="no-referrer" />'
+    else:
+        print '''<style>
   .layout {
      margin-left: auto;
      margin-right: auto;
@@ -66,7 +71,8 @@ if not (print_id_only or print_body_only):
     line-height: 1.39em;
   }
   </style>
-</head>
+  '''
+    print '''</head>
 <body>
   <div class="layout">
     <h1>New arXiv papers by KIPAC members</h1>
