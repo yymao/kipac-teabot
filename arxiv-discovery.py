@@ -8,11 +8,10 @@ form = cgi.FieldStorage()
 
 print_id_only = form.getfirst('fmt', '').lower() == 'txt' or form.getfirst('idOnly')
 print_body_only = bool(form.getfirst('bodyOnly'))
-use_kipac_css = bool(form.getfirst('kipacStyle'))
+use_plain_style = bool(form.getfirst('plainStyle'))
 
 print 'Content-Type:', 'text/plain' if print_id_only else 'text/html'
-if print_body_only or use_kipac_css:
-    print 'Access-Control-Allow-Origin: *'
+print 'Access-Control-Allow-Origin: *'
 print
 
 import os
@@ -49,11 +48,9 @@ if not (print_id_only or print_body_only):
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="robots" content="noindex, nofollow">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   '''
-    if use_kipac_css:
-        print '<link rel="stylesheet" href="https://s3df.slac.stanford.edu/data/kipac/teabot/website-layout.css" crossorigin="anonymous" referrerpolicy="no-referrer" />'
-    else:
+    if use_plain_style:
+        print '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w==" crossorigin="anonymous" referrerpolicy="no-referrer" />'
         print '''<style>
   .layout {
      margin-left: auto;
@@ -70,8 +67,10 @@ if not (print_id_only or print_body_only):
     padding-bottom: 0.67em;
     line-height: 1.39em;
   }
-  </style>
-  '''
+  </style>'''
+    else:
+        print '<link rel="stylesheet" href="https://gist.githubusercontent.com/yymao/6ea6f27fc89138dd14683e12aaac20bb/raw/website-layout.css" crossorigin="anonymous" referrerpolicy="no-referrer" />'
+
     print '''</head>
 <body>
   <div class="layout">
