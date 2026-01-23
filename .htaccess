@@ -4,3 +4,8 @@ Require user yymao bhadnott
 Allow from all
 Satisfy Any
 </FilesMatch>
+
+<Files "*.css">
+Allow from all
+Satisfy Any
+</Files>

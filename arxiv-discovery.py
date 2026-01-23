@@ -69,7 +69,7 @@ if not (print_id_only or print_body_only):
   }
   </style>'''
     else:
-        print '<link rel="stylesheet" href="https://gist.githubusercontent.com/yymao/6ea6f27fc89138dd14683e12aaac20bb/raw/website-layout.css" crossorigin="anonymous" referrerpolicy="no-referrer" />'
+        print '<link rel="stylesheet" href="static/kipac.css" />'
 
     print '''</head>
 <body>
